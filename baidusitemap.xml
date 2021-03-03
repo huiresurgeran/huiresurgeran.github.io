@@ -1,7 +1,23 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>http://example.com/2021/02/25/%E7%A5%9E%E7%9B%BE%E5%BB%B6%E8%BF%9F%E5%A4%8D%E7%9B%98/</loc>
-    <lastmod>2021-02-25</lastmod>
+    <loc>http://example.com/2021/03/03/maven-setting/</loc>
+    <lastmod>2021-03-03</lastmod>
+  </url>
+  <url>
+    <loc>http://example.com/2021/02/25/safe_delay/</loc>
+    <lastmod>2021-03-03</lastmod>
+  </url>
+  <url>
+    <loc>http://example.com/2021/03/01/movie/</loc>
+    <lastmod>2021-03-01</lastmod>
+  </url>
+  <url>
+    <loc>http://example.com/2021/02/26/test/</loc>
+    <lastmod>2021-02-26</lastmod>
+  </url>
+  <url>
+    <loc>http://example.com/2021/02/26/api-doc/</loc>
+    <lastmod>2021-02-26</lastmod>
   </url>
 </urlset> 
