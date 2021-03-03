@@ -7,71 +7,6 @@
 ]]></content>
   </entry>
   <entry>
-    <title>test</title>
-    <url>/2021/02/26/test/</url>
-    <content><![CDATA[]]></content>
-  </entry>
-  <entry>
-    <title>神盾对账延迟故障复盘</title>
-    <url>/2021/02/25/safe_delay/</url>
-    <content><![CDATA[<p>2.19 开始有业务反馈神盾出现延迟(shuangchen)<br><img src="/2021/02/25/safe_delay/shuangchen_1.jpg"></p>
-<p>初步来看，agent上报到svr延迟较大，应是大量数据上报超时堆积导致，每次agent上报超时，都会等待20s</p>
-<p>2.20 延迟进一步加剧，大约有10+对账，处于延迟边缘，引发大量延迟事件</p>
-<p>2.22 下午，发布新版本（增加耗时日志打印），延迟进一步加大，到5点逐渐扩展到2h<br>管理员收到大量告警，agent等待svr处理超过20s</p>
-<p>2.22 晚上，发布多个版本，修改数据库线程池大小，增加超时时间设置，延迟降低，出现漏对事件</p>
-<p>2.23 早上，延迟再次增加，且出现大量漏对事件，数据库备机压力大，dba增加索引，svr修改线程池，调整超时时间，延迟逐渐减少，漏对逐渐减少</p>
-<p>BasicDataSource 改为 HiKariDataSource</p>
-<p>2.24 下午，上报处理逻辑优化，尽量减少查询次数，减少排序，悲观锁改为乐观锁</p>
-<p>后续，出现数次safe status更新失败告警，部分数据量大的表耗时偶尔较长，部分对账同时间上报多条数据，待优化<br><img src="/2021/02/25/safe_delay/update_safe_status_fail.png"></p>
-]]></content>
-      <categories>
-        <category>safe</category>
-      </categories>
-      <tags>
-        <tag>safe</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>电影计划</title>
-    <url>/2021/03/01/movie/</url>
-    <content><![CDATA[<ol>
-<li>2020</li>
-</ol>
-<ul>
-<li>变身特工</li>
-<li>八佰</li>
-<li>急先锋</li>
-<li>花木兰</li>
-<li>小妇人</li>
-<li>假面饭店</li>
-<li>妙先生</li>
-<li>金刚川</li>
-<li>除暴</li>
-<li>紧急救援</li>
-<li>沐浴之王</li>
-<li>晴雅集</li>
-<li>疯狂原始人2</li>
-<li>神奇女侠1984</li>
-<li>一秒钟</li>
-<li>数码宝贝：最后的进化</li>
-<li>喜宝</li>
-<li>温暖的抱抱</li>
-<li>风平浪静</li>
-<li>哆啦A梦：大雄的新恐龙</li>
-<li>月半爱丽丝</li>
-<li>隐形人海兽之子</li>
-<li>宝可梦：超梦的逆袭进化</li>
-<li>气球</li>
-</ul>
-]]></content>
-      <categories>
-        <category>电影</category>
-      </categories>
-      <tags>
-        <tag>movie</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>maven_setting</title>
     <url>/2021/03/03/maven-setting/</url>
     <content><![CDATA[<ol>
@@ -120,5 +55,70 @@
       <tags>
         <tag>java</tag>
       </tags>
+  </entry>
+  <entry>
+    <title>电影计划</title>
+    <url>/2021/03/01/movie/</url>
+    <content><![CDATA[<ol>
+<li>2020</li>
+</ol>
+<ul>
+<li>变身特工</li>
+<li>八佰</li>
+<li>急先锋</li>
+<li>花木兰</li>
+<li>小妇人</li>
+<li>假面饭店</li>
+<li>妙先生</li>
+<li>金刚川</li>
+<li>除暴</li>
+<li>紧急救援</li>
+<li>沐浴之王</li>
+<li>晴雅集</li>
+<li>疯狂原始人2</li>
+<li>神奇女侠1984</li>
+<li>一秒钟</li>
+<li>数码宝贝：最后的进化</li>
+<li>喜宝</li>
+<li>温暖的抱抱</li>
+<li>风平浪静</li>
+<li>哆啦A梦：大雄的新恐龙</li>
+<li>月半爱丽丝</li>
+<li>隐形人海兽之子</li>
+<li>宝可梦：超梦的逆袭进化</li>
+<li>气球</li>
+</ul>
+]]></content>
+      <categories>
+        <category>电影</category>
+      </categories>
+      <tags>
+        <tag>movie</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>神盾对账延迟故障复盘</title>
+    <url>/2021/02/25/safe_delay/</url>
+    <content><![CDATA[<p>2.19 开始有业务反馈神盾出现延迟(shuangchen)<br><img src="/2021/02/25/safe_delay/shuangchen_1.jpg"></p>
+<p>初步来看，agent上报到svr延迟较大，应是大量数据上报超时堆积导致，每次agent上报超时，都会等待20s</p>
+<p>2.20 延迟进一步加剧，大约有10+对账，处于延迟边缘，引发大量延迟事件</p>
+<p>2.22 下午，发布新版本（增加耗时日志打印），延迟进一步加大，到5点逐渐扩展到2h<br>管理员收到大量告警，agent等待svr处理超过20s</p>
+<p>2.22 晚上，发布多个版本，修改数据库线程池大小，增加超时时间设置，延迟降低，出现漏对事件</p>
+<p>2.23 早上，延迟再次增加，且出现大量漏对事件，数据库备机压力大，dba增加索引，svr修改线程池，调整超时时间，延迟逐渐减少，漏对逐渐减少</p>
+<p>BasicDataSource 改为 HiKariDataSource</p>
+<p>2.24 下午，上报处理逻辑优化，尽量减少查询次数，减少排序，悲观锁改为乐观锁</p>
+<p>后续，出现数次safe status更新失败告警，部分数据量大的表耗时偶尔较长，部分对账同时间上报多条数据，待优化<br><img src="/2021/02/25/safe_delay/update_safe_status_fail.png"></p>
+]]></content>
+      <categories>
+        <category>safe</category>
+      </categories>
+      <tags>
+        <tag>safe</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>test</title>
+    <url>/2021/02/26/test/</url>
+    <content><![CDATA[]]></content>
   </entry>
 </search>
