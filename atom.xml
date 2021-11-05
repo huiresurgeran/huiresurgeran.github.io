@@ -6,7 +6,7 @@
   <link href="http://example.com/atom.xml" rel="self"/>
   
   <link href="http://example.com/"/>
-  <updated>2021-03-03T06:42:12.836Z</updated>
+  <updated>2021-11-05T09:32:44.246Z</updated>
   <id>http://example.com/</id>
   
   <author>
@@ -15,6 +15,50 @@
   </author>
   
   <generator uri="https://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>hexo-operation</title>
+    <link href="http://example.com/2021/11/05/hexo-operation/"/>
+    <id>http://example.com/2021/11/05/hexo-operation/</id>
+    <published>2021-11-05T08:54:14.000Z</published>
+    <updated>2021-11-05T09:32:44.246Z</updated>
+    
+    <content type="html"><![CDATA[<ol><li><p>新建<br><code>hexo new &quot;file-name&quot;</code><br>新建的markdown文件在<code>source/_post/</code>目录下</p></li><li><p>生成静态网页<br><code>hexo generate</code><br>生成的静态网页在<code>public</code>目录的相应的日期下，比如2021-11-05生成，在<code>public/2021/11/05</code>文件夹下</p></li><li><p>本地启动<br><code>hexo server</code><br>启动端口为4000，可使用<code>localhost:4000</code>查看</p></li><li><p>部署<br><code>hexo deploy</code><br>网址为：huiresurgeran.github.io</p></li><li><p>删除<br>（1）去本地文件夹的<code>/source/_post</code>目录下删除需要删除的<code>.md</code>文件<br>（2）去本地文件夹的<code>/public</code>目录下删除这篇博客对应的文件夹（根据发布时间归档）<br>（3）重新生成并发布：generate + deploy</p></li><li><p>问题<br>博客更新时出现问题，可以进行清理并重新生成静态网页<br><code>hexo clean</code><br><code>hexo generate</code></p></li><li><p>参考内部文档<br><a class="link" href="https://km.woa.com/group/19976/articles/show/297274?kmref=search&amp;from_page=1&amp;no=2">https://km.woa.com/group/19976/articles/show/297274?kmref=search&amp;from_page=1&amp;no=2<i class="fas fa-external-link-alt"></i></a></p></li></ol>]]></content>
+    
+    
+      
+      
+    <summary type="html">&lt;ol&gt;
+&lt;li&gt;&lt;p&gt;新建&lt;br&gt;&lt;code&gt;hexo new &amp;quot;file-name&amp;quot;&lt;/code&gt;&lt;br&gt;新建的markdown文件在&lt;code&gt;source/_post/&lt;/code&gt;目录下&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;生成静态网页&lt;br&gt;&lt;cod</summary>
+      
+    
+    
+    
+    <category term="code-tool" scheme="http://example.com/categories/code-tool/"/>
+    
+    <category term="hexo" scheme="http://example.com/categories/code-tool/hexo/"/>
+    
+    
+    <category term="hexo" scheme="http://example.com/tags/hexo/"/>
+    
+    <category term="tool" scheme="http://example.com/tags/tool/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>java-bytes</title>
+    <link href="http://example.com/2021/11/05/java-bytes/"/>
+    <id>http://example.com/2021/11/05/java-bytes/</id>
+    <published>2021-11-05T08:52:31.000Z</published>
+    <updated>2021-11-05T08:52:31.947Z</updated>
+    
+    
+    
+    
+    
+  </entry>
   
   <entry>
     <title>maven_setting</title>
@@ -124,9 +168,9 @@
     <link href="http://example.com/2021/02/25/safe_delay/"/>
     <id>http://example.com/2021/02/25/safe_delay/</id>
     <published>2021-02-25T12:49:22.000Z</published>
-    <updated>2021-03-03T06:12:05.338Z</updated>
+    <updated>2021-03-25T11:53:08.445Z</updated>
     
-    <content type="html"><![CDATA[<p>2.19 开始有业务反馈神盾出现延迟(shuangchen)<br><img src="/2021/02/25/safe_delay/shuangchen_1.jpg"></p><p>初步来看，agent上报到svr延迟较大，应是大量数据上报超时堆积导致，每次agent上报超时，都会等待20s</p><p>2.20 延迟进一步加剧，大约有10+对账，处于延迟边缘，引发大量延迟事件</p><p>2.22 下午，发布新版本（增加耗时日志打印），延迟进一步加大，到5点逐渐扩展到2h<br>管理员收到大量告警，agent等待svr处理超过20s</p><p>2.22 晚上，发布多个版本，修改数据库线程池大小，增加超时时间设置，延迟降低，出现漏对事件</p><p>2.23 早上，延迟再次增加，且出现大量漏对事件，数据库备机压力大，dba增加索引，svr修改线程池，调整超时时间，延迟逐渐减少，漏对逐渐减少</p><p>BasicDataSource 改为 HiKariDataSource</p><p>2.24 下午，上报处理逻辑优化，尽量减少查询次数，减少排序，悲观锁改为乐观锁</p><p>后续，出现数次safe status更新失败告警，部分数据量大的表耗时偶尔较长，部分对账同时间上报多条数据，待优化<br><img src="/2021/02/25/safe_delay/update_safe_status_fail.png"></p>]]></content>
+    <content type="html"><![CDATA[<p>2.19 开始有业务反馈神盾出现延迟(shuangchen)<br><img src="/2021/02/25/safe_delay/shuangchen_1.jpg"></p><p>初步来看，agent上报到svr延迟较大，应是大量数据上报超时堆积导致，每次agent上报超时，都会等待20s</p><p>2.20 延迟进一步加剧，大约有10+对账，处于延迟边缘，引发大量延迟事件</p><p>2.22 下午，发布新版本（增加耗时日志打印），延迟进一步加大，到5点逐渐扩展到2h<br>管理员收到大量告警，agent等待svr处理超过20s</p><p>2.22 晚上，发布多个版本，修改数据库线程池大小，增加超时时间设置，延迟降低，出现漏对事件</p><p>2.23 早上，延迟再次增加，且出现大量漏对事件，数据库备机压力大，dba增加索引，svr修改线程池，调整超时时间，延迟逐渐减少，漏对逐渐减少</p><p>BasicDataSource 改为 HiKariDataSource<br>HikariCP是一个轻量级的十分快速的JDBC连接池框架。<br>使用了以下这些技术</p><ul><li>字节级别的工程技术</li><li>微观层面的优化</li><li>集合框架的智能使用<br>demo<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">HikariConfig config &#x3D; new HikariConfig();</span><br><span class="line">HikariDataSource ds;</span><br><span class="line"></span><br><span class="line">config.setJdbcUrl(&quot;jdbc_url&quot;);</span><br><span class="line">config.setUsername(&quot;xxx&quot;);</span><br><span class="line">config.setPassword(&quot;xxx&quot;);</span><br><span class="line">config.addDataSourceProperty(&quot;cachePrepStms&quot;, &quot;true&quot;);</span><br><span class="line">config.addDataSourceProperty(&quot;prepStmtCacheSize&quot;, &quot;250&quot;);</span><br><span class="line">config.addDataSourceProperty(&quot;prepStmtCacheSqlLimit&quot;, &quot;2048&quot;);</span><br><span class="line">ds &#x3D; new HikariDataSource(config);</span><br><span class="line"></span><br><span class="line"></span><br></pre></td></tr></table></figure></li></ul><p>HikariConfig 配置类，初始化数据源<br>HikariCP可以检测到连接泄漏</p><p>索引增加字段（索引机制还是挺复杂的，有时间需要好好研究）<br>跟数据量，数据过滤比例，排序都有关系</p><ol><li>返回数据比例&gt;30%，不使用索引</li><li>where 和 order条件，先where后order</li><li>没有过滤效果的条件，可以不建立索引</li><li>时间段查询，&gt;= &amp;&amp; &lt;= 索引效果没有=效果好</li><li>like索引效果，没有in效果好</li></ol><p>2.24 下午，上报处理逻辑优化，尽量减少查询次数，减少排序，悲观锁改为乐观锁</p><p>后续，出现数次safe status更新失败告警，部分数据量大的表耗时偶尔较长，部分对账同时间上报多条数据，待优化<br><img src="/2021/02/25/safe_delay/update_safe_status_fail.png"></p>]]></content>
     
     
       
