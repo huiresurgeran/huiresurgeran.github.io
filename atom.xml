@@ -6,7 +6,7 @@
   <link href="http://example.com/atom.xml" rel="self"/>
   
   <link href="http://example.com/"/>
-  <updated>2021-11-05T09:36:54.315Z</updated>
+  <updated>2021-11-05T09:56:43.845Z</updated>
   <id>http://example.com/</id>
   
   <author>
@@ -21,9 +21,9 @@
     <link href="http://example.com/2021/11/05/hexo-operation/"/>
     <id>http://example.com/2021/11/05/hexo-operation/</id>
     <published>2021-11-05T08:54:14.000Z</published>
-    <updated>2021-11-05T09:36:54.315Z</updated>
+    <updated>2021-11-05T09:56:43.845Z</updated>
     
-    <content type="html"><![CDATA[<ol><li><p>新建<br><code>hexo new &quot;file-name&quot;</code><br>新建的markdown文件在<code>source/_post/</code>目录下</p></li><li><p>生成静态网页<br><code>hexo generate</code><br>生成的静态网页在<code>public</code>目录的相应的日期下，比如2021-11-05生成，在<code>public/2021/11/05</code>文件夹下</p></li><li><p>本地启动<br><code>hexo server</code><br>启动端口为4000，可使用<code>localhost:4000</code>查看</p></li><li><p>部署<br><code>hexo deploy</code><br>网址为：huiresurgeran.github.io<br>带提交信息<code>hexo deploy -m &quot;commit messgae</code></p></li><li><p>删除<br>（1）去本地文件夹的<code>/source/_post</code>目录下删除需要删除的<code>.md</code>文件<br>（2）去本地文件夹的<code>/public</code>目录下删除这篇博客对应的文件夹（根据发布时间归档）<br>（3）重新生成并发布：generate + deploy</p></li><li><p>问题<br>博客更新时出现问题，可以进行清理并重新生成静态网页<br><code>hexo clean</code><br><code>hexo generate</code></p></li><li><p>参考内部文档<br><a class="link" href="https://km.woa.com/group/19976/articles/show/297274?kmref=search&amp;from_page=1&amp;no=2">https://km.woa.com/group/19976/articles/show/297274?kmref=search&amp;from_page=1&amp;no=2<i class="fas fa-external-link-alt"></i></a></p></li></ol>]]></content>
+    <content type="html"><![CDATA[<ol><li><p>新建<br><code>hexo new &quot;file-name&quot;</code><br>新建的markdown文件在<code>source/_post/</code>目录下</p></li><li><p>生成静态网页<br><code>hexo generate</code><br>生成的静态网页在<code>public</code>目录的相应的日期下，比如2021-11-05生成，在<code>public/2021/11/05</code>文件夹下</p></li><li><p>本地启动<br><code>hexo server</code><br>启动端口为4000，可使用<code>localhost:4000</code>查看</p></li><li><p>部署<br><code>hexo deploy</code><br>网址为：huiresurgeran.github.io<br>带提交信息<code>hexo deploy -m &quot;commit messgae</code></p></li><li><p>删除<br>（1）去本地文件夹的<code>/source/_post</code>目录下删除需要删除的<code>.md</code>文件<br>（2）去本地文件夹的<code>/public</code>目录下删除这篇博客对应的文件夹（根据发布时间归档）<br>（3）重新生成并发布：generate + deploy</p></li><li><p>问题<br>博客更新时出现问题，可以进行清理并重新生成静态网页<br><code>hexo clean</code><br><code>hexo generate</code></p></li><li><p>参考内部文档<br><a class="link" href="https://km.woa.com/group/19976/articles/show/297274?kmref=search&amp;from_page=1&amp;no=2">https://km.woa.com/group/19976/articles/show/297274?kmref=search&amp;from_page=1&amp;no=2<i class="fas fa-external-link-alt"></i></a></p></li><li><p>git分支备份hexo md源码<br><a class="link" href="https://blog.csdn.net/qq_45271256/article/details/105800705?spm=1001.2101.3001.6650.1&amp;utm_medium=distribute.pc_relevant.none-task-blog-2~default~CTRLIST~default-1.no_search_link&amp;depth_1-utm_source=distribute.pc_relevant.none-task-blog-2~default~CTRLIST~default-1.no_search_link">https://blog.csdn.net/qq_45271256/article/details/105800705?spm=1001.2101.3001.6650.1&amp;utm_medium=distribute.pc_relevant.none-task-blog-2%7Edefault%7ECTRLIST%7Edefault-1.no_search_link&amp;depth_1-utm_source=distribute.pc_relevant.none-task-blog-2%7Edefault%7ECTRLIST%7Edefault-1.no_search_link<i class="fas fa-external-link-alt"></i></a></p></li></ol>]]></content>
     
     
       
