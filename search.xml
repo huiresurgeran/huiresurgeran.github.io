@@ -147,7 +147,7 @@
 </li>
 <li><p>本地启动<br><code>hexo server</code><br>启动端口为4000，可使用<code>localhost:4000</code>查看</p>
 </li>
-<li><p>部署<br><code>hexo deploy</code><br>网址为：huiresurgeran.github.io</p>
+<li><p>部署<br><code>hexo deploy</code><br>网址为：huiresurgeran.github.io<br>带提交信息<code>hexo deploy -m &quot;commit messgae</code></p>
 </li>
 <li><p>删除<br>（1）去本地文件夹的<code>/source/_post</code>目录下删除需要删除的<code>.md</code>文件<br>（2）去本地文件夹的<code>/public</code>目录下删除这篇博客对应的文件夹（根据发布时间归档）<br>（3）重新生成并发布：generate + deploy</p>
 </li>
