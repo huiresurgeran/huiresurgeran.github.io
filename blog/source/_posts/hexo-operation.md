@@ -36,3 +36,6 @@ categories:
 
 7. 参考内部文档
 https://km.woa.com/group/19976/articles/show/297274?kmref=search&from_page=1&no=2
+
+8. git分支备份hexo md源码
+https://blog.csdn.net/qq_45271256/article/details/105800705?spm=1001.2101.3001.6650.1&utm_medium=distribute.pc_relevant.none-task-blog-2%7Edefault%7ECTRLIST%7Edefault-1.no_search_link&depth_1-utm_source=distribute.pc_relevant.none-task-blog-2%7Edefault%7ECTRLIST%7Edefault-1.no_search_link
