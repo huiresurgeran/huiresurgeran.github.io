@@ -1,6 +1,54 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
+    <loc>http://example.com/2021/11/09/big-data-compare/</loc>
+    <lastmod>2021-11-09</lastmod>
+  </url>
+  <url>
+    <loc>http://example.com/2021/11/09/other-trace-systems/</loc>
+    <lastmod>2021-11-09</lastmod>
+  </url>
+  <url>
+    <loc>http://example.com/2021/11/09/FMHA/</loc>
+    <lastmod>2021-11-09</lastmod>
+  </url>
+  <url>
+    <loc>http://example.com/2021/11/09/CTSDB%E6%9F%A5%E8%AF%A2%E4%BC%98%E5%8C%96/</loc>
+    <lastmod>2021-11-09</lastmod>
+  </url>
+  <url>
+    <loc>http://example.com/2021/11/09/%E6%9D%83%E9%99%90-%E6%95%B0%E6%8D%AE%E5%AE%89%E5%85%A8/</loc>
+    <lastmod>2021-11-09</lastmod>
+  </url>
+  <url>
+    <loc>http://example.com/2021/11/09/hermes-es/</loc>
+    <lastmod>2021-11-09</lastmod>
+  </url>
+  <url>
+    <loc>http://example.com/2021/11/09/search/</loc>
+    <lastmod>2021-11-09</lastmod>
+  </url>
+  <url>
+    <loc>http://example.com/2021/11/09/oms/</loc>
+    <lastmod>2021-11-09</lastmod>
+  </url>
+  <url>
+    <loc>http://example.com/2021/11/09/cftologserver/</loc>
+    <lastmod>2021-11-09</lastmod>
+  </url>
+  <url>
+    <loc>http://example.com/2021/11/09/cache/</loc>
+    <lastmod>2021-11-09</lastmod>
+  </url>
+  <url>
+    <loc>http://example.com/2021/11/09/stream-computing/</loc>
+    <lastmod>2021-11-09</lastmod>
+  </url>
+  <url>
+    <loc>http://example.com/2021/11/09/tdw-hermes/</loc>
+    <lastmod>2021-11-09</lastmod>
+  </url>
+  <url>
     <loc>http://example.com/2021/11/05/hexo-operation/</loc>
     <lastmod>2021-11-05</lastmod>
   </url>

@@ -173,4 +173,552 @@
     <url>/2021/11/05/java-bytes/</url>
     <content><![CDATA[]]></content>
   </entry>
+  <entry>
+    <title>大数据处理平台对比</title>
+    <url>/2021/11/09/big-data-compare/</url>
+    <content><![CDATA[<h2 id="1-关系型数据库：mysql-postgre"><a href="#1-关系型数据库：mysql-postgre" class="headerlink" title="1. 关系型数据库：mysql + postgre"></a>1. 关系型数据库：mysql + postgre</h2><p>优点：</p>
+<ul>
+<li>稳定</li>
+<li>简单</li>
+<li>结构化数据</li>
+</ul>
+<p>缺点：</p>
+<ul>
+<li>存储成本大（时序数据压缩不佳）</li>
+<li>维护成本高（人工分库分表）</li>
+<li>写入吞吐低（磁盘IO + 索引建立）</li>
+<li>查询性能差（磁盘IO + 索引建立）</li>
+<li>聚合海量性能差（适合事务，不适合聚合）</li>
+<li>数据规模支持小</li>
+<li>难以横向扩展</li>
+<li>postgre，聚合查询，容易出现性能瓶颈</li>
+</ul>
+<h2 id="2-非关系型数据库：mongodb"><a href="#2-非关系型数据库：mongodb" class="headerlink" title="2. 非关系型数据库：mongodb"></a>2. 非关系型数据库：mongodb</h2><p>优点</p>
+<ul>
+<li>查询功能强大</li>
+<li>表结构灵活可变</li>
+<li>删改数据方便</li>
+<li>海量存储</li>
+</ul>
+<p>缺点</p>
+<ul>
+<li>多表查询、复杂事务等高级操作有阻碍</li>
+<li>非分布式，难以横向扩容：集群配置，绑定分片、副本节点</li>
+<li>字段搜索需要手动索引：B+ tree，最左优先</li>
+<li>不适合大数据量查询：比不上ES的倒排索引（亿级）</li>
+<li>不适合多表和复杂条件查询：创建B+树索引</li>
+<li>不适合全文检索：字段个数有限制</li>
+<li>不适合聚合：负责聚合通过MapReduce，速度慢</li>
+</ul>
+<p>和es的对比</p>
+<ul>
+<li>mongodb适合需要修改的数据，es适合不需要的</li>
+<li>es查询/全文索引/聚合分析比mongodb强</li>
+</ul>
+<h2 id="3-druid，德鲁伊"><a href="#3-druid，德鲁伊" class="headerlink" title="3. druid，德鲁伊"></a>3. druid，德鲁伊</h2><p>介绍：分布式的，支持实时多维OLAP分析的数据处理系统<br>优点：</p>
+<ul>
+<li>适合聚合，快速扫描：列式存储，压缩的位图索引</li>
+<li>可扩展的分布式系统：自我平衡，易于操作</li>
+<li>支持数据规模大</li>
+<li>支持实时或批量查询，秒级查询：列存压缩，位图索引，倒排索引，预聚合</li>
+<li>基于时间的分区：提高时间数据性能</li>
+</ul>
+<p>缺点：</p>
+<ul>
+<li>支持基础的搜索，不支持全文搜索</li>
+<li>核心功能rollup，rollup之后丢失明细数据</li>
+<li>不适合复杂聚合</li>
+<li>外部依赖多，部署运维麻烦</li>
+</ul>
+<h2 id="4-clickhouse"><a href="#4-clickhouse" class="headerlink" title="4. clickhouse"></a>4. clickhouse</h2><p>完全列式存储计算的分析性数据库，OLAP</p>
+<p>优点</p>
+<ul>
+<li>数据压缩</li>
+<li>多核并行处理，单机性能到极限</li>
+<li>适合复杂深度聚合：merge tree</li>
+<li>写入吞吐量大，ES 5倍以上</li>
+<li>查询速度快，支持SQL（列式+压缩）</li>
+<li>支持向量化计算</li>
+<li>服务器成本低，稳定性更高</li>
+</ul>
+<p>缺点：</p>
+<ul>
+<li>分布式依赖zk，无节点发现能力，需要手动配置（和mongodb一样）</li>
+<li>列式数据库，不支持全文检索（列式存储）</li>
+<li>无法动态添加字段</li>
+<li>日志无法长期保存（下线清理）</li>
+<li>不支持高并发查询（qps 100，单次查询利用所有资源）</li>
+</ul>
+<h2 id="5-es"><a href="#5-es" class="headerlink" title="5. es"></a>5. es</h2><h2 id="6-hermes"><a href="#6-hermes" class="headerlink" title="6. hermes"></a>6. hermes</h2><p>大数据实时分析系统<br>海量数据实时写入和存储，低延迟查询分析的平台<br>索引的读写和分布式架构自研，底层存储基于HDFS，集群管理利用ZK</p>
+<p>缺点</p>
+<ul>
+<li>写入搜索性能差一点（访问HDFS，比不上访问本地文件系统）</li>
+<li>查询写入性能差</li>
+</ul>
+<p>优点</p>
+<ul>
+<li>数据导入可以通过kafka等直接写入/MapReduce</li>
+<li>计算与存储分离，管理精细化，浪费更少</li>
+<li>分片数据存储在HDFS，资源更加弹性</li>
+<li>写入时资源消耗低，可用于索引合并的资源更多，减少小索引的数量，提高查询性能，副本异步同步</li>
+<li>hermes将索引和数据分离存储，降低索引目录刷盘次数和目录个数，提高读写</li>
+<li>hermes适合数据分析，es适合检索</li>
+<li>适合更大规模的业务</li>
+</ul>
+<h2 id="7-hbase"><a href="#7-hbase" class="headerlink" title="7. hbase"></a>7. hbase</h2><p>基于HDFS的数据库，列式存储，无专用查询语言，NoSql数据库</p>
+<p>优点</p>
+<ul>
+<li>海量数据实时查询</li>
+<li>极强的横向扩展能力</li>
+<li>近实时系统，支持实时查询</li>
+<li>支持更大量的数据</li>
+</ul>
+<p>缺点</p>
+<ul>
+<li>复杂查询难以进行，列式存储</li>
+<li>依赖多：无专用查询语言，依赖第三方</li>
+<li>基于RowKey，RowKey设计的好坏决定了HBase使用效果</li>
+</ul>
+<h2 id="8-hadoop"><a href="#8-hadoop" class="headerlink" title="8. hadoop"></a>8. hadoop</h2><p>mapReduce + HDFS，hive和hbase的基础</p>
+<p>缺点：数据延迟高（离线批处理） + 查询性能差</p>
+<h2 id="9-hive"><a href="#9-hive" class="headerlink" title="9. hive"></a>9. hive</h2><p>hadoop数据仓库工具，分析查询引擎，用于数据分析</p>
+<p>功能：hive将sql翻译成MapReduce，处理和计算HDFS数据<br>缺点：数据延迟高（离线批处理）<br>特点：本身不存储也不计算，存储依赖HDFS，计算依赖MapReduce</p>
+]]></content>
+      <categories>
+        <category>答辩</category>
+        <category>大数据</category>
+      </categories>
+      <tags>
+        <tag>big-data</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>CTSDB查询优化</title>
+    <url>/2021/11/09/CTSDB%E6%9F%A5%E8%AF%A2%E4%BC%98%E5%8C%96/</url>
+    <content><![CDATA[<h2 id="1-from-size"><a href="#1-from-size" class="headerlink" title="1. from/size"></a>1. from/size</h2><p>避免分页深度</p>
+<h2 id="2-实时聚合-》-rollup"><a href="#2-实时聚合-》-rollup" class="headerlink" title="2. 实时聚合 =》 rollup"></a>2. 实时聚合 =》 rollup</h2><p>实时聚合影响：内存占用，分桶多的数据</p>
+<h2 id="3-排序优化"><a href="#3-排序优化" class="headerlink" title="3. 排序优化"></a>3. 排序优化</h2><ul>
+<li>index sorting，docID和indexSorting的顺序一致</li>
+<li>遍历 =》 提前中断</li>
+<li>降低了写入性能</li>
+<li>提高了查询性能<ul>
+<li>预排序 + after key + 提前中断</li>
+<li>数据压缩率</li>
+</ul>
+</li>
+</ul>
+<h2 id="4-查询剪枝"><a href="#4-查询剪枝" class="headerlink" title="4. 查询剪枝"></a>4. 查询剪枝</h2><p>segment，最大值最小值<br>遍历 =》 跳过</p>
+<h2 id="5-routing"><a href="#5-routing" class="headerlink" title="5. routing"></a>5. routing</h2><p>一次聚合 + 分片级并发</p>
+<h2 id="6-rollup"><a href="#6-rollup" class="headerlink" title="6. rollup"></a>6. rollup</h2><p>流式聚合（并发分页）<br>indexSorting（提前中断）<br>查询剪枝<br>routing（分片级并发）</p>
+<h2 id="7-composite"><a href="#7-composite" class="headerlink" title="7. composite"></a>7. composite</h2>]]></content>
+      <categories>
+        <category>答辩</category>
+        <category>大数据</category>
+      </categories>
+      <tags>
+        <tag>ctsdb</tag>
+        <tag>search</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>FMHA</title>
+    <url>/2021/11/09/FMHA/</url>
+    <content><![CDATA[<h2 id="1-一主三备"><a href="#1-一主三备" class="headerlink" title="1. 一主三备"></a>1. 一主三备</h2><p>主：锦绣<br>备：锦绣 + 荔景 + 光明</p>
+<h2 id="2-复制类型"><a href="#2-复制类型" class="headerlink" title="2. 复制类型"></a>2. 复制类型</h2><p>同步/半同步</p>
+<h2 id="3-容灾"><a href="#3-容灾" class="headerlink" title="3. 容灾"></a>3. 容灾</h2><p>强容灾</p>
+<h2 id="4-卡主修复"><a href="#4-卡主修复" class="headerlink" title="4. 卡主修复"></a>4. 卡主修复</h2><p>关闭：直接切换主备<br>开启：异步复制，容易出现单点故障，导致数据丢失</p>
+]]></content>
+      <categories>
+        <category>答辩</category>
+        <category>数据库</category>
+      </categories>
+      <tags>
+        <tag>db</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>ckv+ &amp; ckv &amp; redis</title>
+    <url>/2021/11/09/cache/</url>
+    <content><![CDATA[<h2 id="1-CKV"><a href="#1-CKV" class="headerlink" title="1. CKV+"></a>1. CKV+</h2><h4 id="（1）多数据结构"><a href="#（1）多数据结构" class="headerlink" title="（1）多数据结构"></a>（1）多数据结构</h4><p>string，list，zset等等</p>
+<h4 id="（2）并发处理"><a href="#（2）并发处理" class="headerlink" title="（2）并发处理"></a>（2）并发处理</h4><p>单进程，多线程<br>一个分片绑定一个CPU，避免加锁</p>
+<ul>
+<li>网络IO，编解码，分给所有CPU</li>
+<li>数据执行，分片ID指定的CPU</li>
+</ul>
+<h4 id="（3）强一致同步"><a href="#（3）强一致同步" class="headerlink" title="（3）强一致同步"></a>（3）强一致同步</h4><p>raft协议 + 冷备</p>
+<h4 id="（4）多协议支持"><a href="#（4）多协议支持" class="headerlink" title="（4）多协议支持"></a>（4）多协议支持</h4><p>redis + memcache</p>
+<h4 id="（5）冷热分离"><a href="#（5）冷热分离" class="headerlink" title="（5）冷热分离"></a>（5）冷热分离</h4><p>不支持</p>
+<h4 id="（6）读写性能"><a href="#（6）读写性能" class="headerlink" title="（6）读写性能"></a>（6）读写性能</h4><p>多核，多线程<br>一个分片一个CPU，避免加锁<br>CPU对应独立的处理进程<br>网络IO和编解码，使用所有的CPU<br>数据执行，使用分片ID指定的CPU</p>
+<h4 id="（7）限制"><a href="#（7）限制" class="headerlink" title="（7）限制"></a>（7）限制</h4><p>key，最大64k<br>value，最大32M</p>
+<h4 id="（8）内存使用率"><a href="#（8）内存使用率" class="headerlink" title="（8）内存使用率"></a>（8）内存使用率</h4><p>多规格block + 动态分配page</p>
+<h2 id="2-CKV"><a href="#2-CKV" class="headerlink" title="2. CKV"></a>2. CKV</h2><h4 id="（1）多数据结构-1"><a href="#（1）多数据结构-1" class="headerlink" title="（1）多数据结构"></a>（1）多数据结构</h4><p>只支持string</p>
+<h4 id="（2）并发处理-1"><a href="#（2）并发处理-1" class="headerlink" title="（2）并发处理"></a>（2）并发处理</h4><p>多进程加锁</p>
+<h4 id="（3）强一致同步-1"><a href="#（3）强一致同步-1" class="headerlink" title="（3）强一致同步"></a>（3）强一致同步</h4><p>不支持<br>其他同步:recover恢复中心</p>
+<h4 id="（4）多协议支持-1"><a href="#（4）多协议支持-1" class="headerlink" title="（4）多协议支持"></a>（4）多协议支持</h4><p>memcache</p>
+<h4 id="（5）冷热分离-1"><a href="#（5）冷热分离-1" class="headerlink" title="（5）冷热分离"></a>（5）冷热分离</h4><p>热数据系统,CMEM<br>冷数据系统，SSD</p>
+<h4 id="（6）读写性能-1"><a href="#（6）读写性能-1" class="headerlink" title="（6）读写性能"></a>（6）读写性能</h4><p>网络IO与核心流程解耦<br>多进程<br>逻辑处理，进程间加锁（毛刺）</p>
+<h4 id="（7）限制-1"><a href="#（7）限制-1" class="headerlink" title="（7）限制"></a>（7）限制</h4><p>key，2-10bytes<br>value，最大10M，最好小于1M</p>
+<h4 id="（8）内存使用率-1"><a href="#（8）内存使用率-1" class="headerlink" title="（8）内存使用率"></a>（8）内存使用率</h4><p>和obj_size业务平均记录大小有关<br>业务记录大小分布越集中，碎片率越低</p>
+<h2 id="3-Redis"><a href="#3-Redis" class="headerlink" title="3. Redis"></a>3. Redis</h2><h4 id="（1）多数据结构-2"><a href="#（1）多数据结构-2" class="headerlink" title="（1）多数据结构"></a>（1）多数据结构</h4><p>string，list，zset等等</p>
+<h4 id="（2）并发处理-2"><a href="#（2）并发处理-2" class="headerlink" title="（2）并发处理"></a>（2）并发处理</h4><p>多线程，2020年下推出<br>网络IO多线程</p>
+<h4 id="（3）强一致同步-2"><a href="#（3）强一致同步-2" class="headerlink" title="（3）强一致同步"></a>（3）强一致同步</h4><p>不支持，只有异步复制</p>
+<h4 id="（4）多协议支持-2"><a href="#（4）多协议支持-2" class="headerlink" title="（4）多协议支持"></a>（4）多协议支持</h4><h4 id="（5）冷热分离-2"><a href="#（5）冷热分离-2" class="headerlink" title="（5）冷热分离"></a>（5）冷热分离</h4><p>不支持</p>
+<h4 id="（6）读写性能-2"><a href="#（6）读写性能-2" class="headerlink" title="（6）读写性能"></a>（6）读写性能</h4><p>非阻塞IO + IO多路复用<br>单线程 + 队列技术 + hash数据结构</p>
+<h4 id="（7）限制-2"><a href="#（7）限制-2" class="headerlink" title="（7）限制"></a>（7）限制</h4><p>value，1GB</p>
+<h4 id="（8）内存使用率-2"><a href="#（8）内存使用率-2" class="headerlink" title="（8）内存使用率"></a>（8）内存使用率</h4><p>LRU,TTL,腾出空间</p>
+<ul>
+<li>过期键删除，释放空间无法充分利用</li>
+</ul>
+<p>分布式存储，槽机制</p>
+<ul>
+<li>缩短key，value长度</li>
+<li>序列化</li>
+<li>数据对齐</li>
+<li>安全重启</li>
+</ul>
+<p>固定范围的内存块分配：小，大，巨大<br>每个范围又被划分成多个小的内存块单位</p>
+]]></content>
+      <categories>
+        <category>答辩</category>
+        <category>缓存</category>
+      </categories>
+      <tags>
+        <tag>cache</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>cftologserver</title>
+    <url>/2021/11/09/cftologserver/</url>
+    <content><![CDATA[<h2 id="1-模块化"><a href="#1-模块化" class="headerlink" title="1. 模块化"></a>1. 模块化</h2><h4 id="（1）五个模块"><a href="#（1）五个模块" class="headerlink" title="（1）五个模块"></a>（1）五个模块</h4><h4 id="（2）资源配置"><a href="#（2）资源配置" class="headerlink" title="（2）资源配置"></a>（2）资源配置</h4><p>kafka集群：深圳 + 上海<br>消费者：分片16<br>cacher：ThreadPoolExecutor，100个线程，2000个无界队列<br>processor：每个尾号一个线程（尾号hash % 线程数）<br>writer：1/分片 + 1/processor</p>
+<h4 id="（3）机器说明"><a href="#（3）机器说明" class="headerlink" title="（3）机器说明"></a>（3）机器说明</h4><p>B70<br>内存：125G，16G * 8 = 128G<br>硬盘：300G<br>物理CPU：2<br>核数：12<br>逻辑CPU：48（2 * 12 *2）<br>CPU Mhz：2301.00<br>RAID：RAID1<br>网络：10GE * 2，10G以太网网络</p>
+<h2 id="2-线程池"><a href="#2-线程池" class="headerlink" title="2. 线程池"></a>2. 线程池</h2><h4 id="（1）作用"><a href="#（1）作用" class="headerlink" title="（1）作用"></a>（1）作用</h4><p>降低资源消耗<br>提高系统运行速度<br>提高可管理性</p>
+<h4 id="（2）使用"><a href="#（2）使用" class="headerlink" title="（2）使用"></a>（2）使用</h4><p>ThreadPoolExecutor<br>核心线程池：100<br>阻塞队列：ArrayBlockingQueue，2000<br>线程池：200<br>饱和策略：DiscardPolicy</p>
+<h2 id="3-缓存"><a href="#3-缓存" class="headerlink" title="3. 缓存"></a>3. 缓存</h2><p>同步锁，synchronized，多线程环境，线程安全同步锁</p>
+]]></content>
+      <categories>
+        <category>答辩</category>
+        <category>日志服务</category>
+      </categories>
+      <tags>
+        <tag>log</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>hermes &amp; es &amp; ces &amp; ctsdb</title>
+    <url>/2021/11/09/hermes-es/</url>
+    <content><![CDATA[<h2 id="1-hermes"><a href="#1-hermes" class="headerlink" title="1. hermes"></a>1. hermes</h2><p>写入搜索性能：HDFS</p>
+<h2 id="2-es"><a href="#2-es" class="headerlink" title="2. es"></a>2. es</h2><p>存储规模限制：集群管理成本，信息同步成本</p>
+<p>写入搜索性能：本地磁盘</p>
+<h2 id="3-ces"><a href="#3-ces" class="headerlink" title="3. ces"></a>3. ces</h2><p>存储规模：集群管理成本，信息同步成本</p>
+<p>写入搜索性能：同CTSDB</p>
+<p>特点：适合检索</p>
+<h2 id="4-CTSDB"><a href="#4-CTSDB" class="headerlink" title="4. CTSDB"></a>4. CTSDB</h2><h4 id="（1）存储规模"><a href="#（1）存储规模" class="headerlink" title="（1）存储规模"></a>（1）存储规模</h4><p>集群大小，管理成本，集群元数据大同步慢</p>
+<h4 id="（2）低成本存储"><a href="#（2）低成本存储" class="headerlink" title="（2）低成本存储"></a>（2）低成本存储</h4><p>编码压缩算法 + rollup + 过期时间</p>
+<h4 id="（3）写入搜索性能"><a href="#（3）写入搜索性能" class="headerlink" title="（3）写入搜索性能"></a>（3）写入搜索性能</h4><ul>
+<li>写入<ul>
+<li>写入内存，之后再写入磁盘</li>
+<li>文件裁剪优化</li>
+</ul>
+</li>
+<li>查询<ul>
+<li>缓存</li>
+<li>倒排索引</li>
+<li>存储模型，segment合并，按时间序分层合并</li>
+<li>执行引擎优化，index sorting + after key + 提前中断</li>
+<li>文件裁剪优化</li>
+</ul>
+</li>
+</ul>
+<h4 id="（4）时序特性"><a href="#（4）时序特性" class="headerlink" title="（4）时序特性"></a>（4）时序特性</h4><p>时序场景管理能力</p>
+<ul>
+<li>metric封装</li>
+<li>按时间滚动生成子表</li>
+<li>自动产生自动销毁</li>
+<li>过期自动清理</li>
+</ul>
+<h4 id="（5）聚合"><a href="#（5）聚合" class="headerlink" title="（5）聚合"></a>（5）聚合</h4><p>rollup</p>
+<ul>
+<li>流式聚合（分页并发）</li>
+<li>查询剪枝（segment）</li>
+<li>index sorting（提前中断）</li>
+<li>routing（分片级并发）</li>
+</ul>
+<h4 id="6-CTSDB-manager"><a href="#6-CTSDB-manager" class="headerlink" title="(6) CTSDB manager"></a>(6) CTSDB manager</h4><p>每个地域一个<br>功能：</p>
+<ul>
+<li>任务下发</li>
+<li>index自动创建/删除</li>
+<li>变配</li>
+<li>监控</li>
+<li>发货</li>
+</ul>
+<h4 id="（7）CTSDB-GATEWAY"><a href="#（7）CTSDB-GATEWAY" class="headerlink" title="（7）CTSDB-GATEWAY"></a>（7）CTSDB-GATEWAY</h4><p>VPC网络：安全性<br>VPC的VIP：负载均衡</p>
+]]></content>
+      <categories>
+        <category>答辩</category>
+        <category>大数据</category>
+      </categories>
+      <tags>
+        <tag>big-data</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>OMS-GATEWAY</title>
+    <url>/2021/11/09/oms/</url>
+    <content><![CDATA[<h2 id="1-架构"><a href="#1-架构" class="headerlink" title="1. 架构"></a>1. 架构</h2><p>oms-api：oms协议的封装<br>oms-gateway：网关，服务发现，负载均衡，统一鉴权<br>oms应用框架：子服务框架，oms协议，服务发现协议</p>
+<h2 id="2-容灾"><a href="#2-容灾" class="headerlink" title="2. 容灾"></a>2. 容灾</h2><h4 id="（1）自身集群"><a href="#（1）自身集群" class="headerlink" title="（1）自身集群"></a>（1）自身集群</h4><p>L5访问网关，网关切换，域名<br>集群，多机器组成，同步子服务信息</p>
+<h4 id="（2）子服务"><a href="#（2）子服务" class="headerlink" title="（2）子服务"></a>（2）子服务</h4><ul>
+<li>子服务信息保存在内存中</li>
+<li>同步协议，同步子服务信息到其他网关机器中</li>
+<li>子服务同步其他子服务信息到本地</li>
+<li>网关检查子服务上报的心跳，剔除</li>
+<li>客户端缓存</li>
+</ul>
+<h2 id="3-路由"><a href="#3-路由" class="headerlink" title="3. 路由"></a>3. 路由</h2><h4 id="（1）就近路由"><a href="#（1）就近路由" class="headerlink" title="（1）就近路由"></a>（1）就近路由</h4><p>根据网关所在机房，相同地理信息的子服务<br>负载均衡，轮询选择IP</p>
+<h4 id="（2）指定机房路由"><a href="#（2）指定机房路由" class="headerlink" title="（2）指定机房路由"></a>（2）指定机房路由</h4><h2 id="4-鉴权"><a href="#4-鉴权" class="headerlink" title="4. 鉴权"></a>4. 鉴权</h2><p>权限控制：统一鉴权中心 + 配置（白名单，人工）<br>客户端身份的鉴定 + 被访问服务的权限控制<br>网关对子服务鉴权，agent</p>
+]]></content>
+      <categories>
+        <category>答辩</category>
+        <category>OMS</category>
+      </categories>
+      <tags>
+        <tag>oms</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>other-trace-systems</title>
+    <url>/2021/11/09/other-trace-systems/</url>
+    <content><![CDATA[<h2 id="1-业界其他"><a href="#1-业界其他" class="headerlink" title="1. 业界其他"></a>1. 业界其他</h2><h4 id="（1）zipkin"><a href="#（1）zipkin" class="headerlink" title="（1）zipkin"></a>（1）zipkin</h4><p>公司：Twitter</p>
+<p>缺点：</p>
+<ul>
+<li>基于java开发，不支持C++</li>
+<li>http上报，消耗性能</li>
+<li>拦截请求，入侵强</li>
+<li>支持trace，不支持监控告警</li>
+</ul>
+<h4 id="（2）鹰眼"><a href="#（2）鹰眼" class="headerlink" title="（2）鹰眼"></a>（2）鹰眼</h4><p>公司：阿里<br>特单：存储在HBASE<br>缺点：不开源</p>
+<h4 id="（3）Pinpoint"><a href="#（3）Pinpoint" class="headerlink" title="（3）Pinpoint"></a>（3）Pinpoint</h4><p>公司：韩国</p>
+<p>优点：</p>
+<ul>
+<li>字节码注入，无侵入</li>
+<li>存储使用hbase</li>
+</ul>
+<p>缺点：</p>
+<ul>
+<li>仅支持java服务，不支持C++</li>
+<li>不支持查询单个调用链</li>
+<li>不兼容OpenTracing</li>
+<li>不支持trace</li>
+</ul>
+<h4 id="（4）CAT"><a href="#（4）CAT" class="headerlink" title="（4）CAT"></a>（4）CAT</h4><p>公司：美团</p>
+<p>优点：基于JAVA开发，支持多种语言</p>
+<p>缺点：</p>
+<ul>
+<li>埋点，代码入侵强</li>
+<li>文档少，资料混乱</li>
+<li>停止维护</li>
+</ul>
+<h4 id="（5）Dapper"><a href="#（5）Dapper" class="headerlink" title="（5）Dapper"></a>（5）Dapper</h4><p>公司：谷歌<br>缺点：不开源</p>
+<h4 id="（6）Opencensus"><a href="#（6）Opencensus" class="headerlink" title="（6）Opencensus"></a>（6）Opencensus</h4><p>公司：谷歌</p>
+<p>优点：开源</p>
+<p>缺点：</p>
+<ul>
+<li>无架构梳理</li>
+<li>不支持日志</li>
+<li>基于agent/controller，依赖重，耦合度高，灵活度低</li>
+</ul>
+<h4 id="（7）skywalking"><a href="#（7）skywalking" class="headerlink" title="（7）skywalking"></a>（7）skywalking</h4><p>公司：华为</p>
+<p>优点：</p>
+<ul>
+<li>JAVA字节码注入，无侵入</li>
+<li>兼容OpenTracing</li>
+</ul>
+<p>缺点：</p>
+<ul>
+<li>依赖多</li>
+<li>不支持C++</li>
+</ul>
+<h4 id="（8）Jaeger"><a href="#（8）Jaeger" class="headerlink" title="（8）Jaeger"></a>（8）Jaeger</h4><p>公司：Uber</p>
+<p>优点：</p>
+<ul>
+<li>支持多种语言，golang开发</li>
+<li>兼容OpenTracing</li>
+</ul>
+<p>缺点：</p>
+<ul>
+<li>拦截请求，入侵强</li>
+<li>支持trace，不支持监控告警</li>
+</ul>
+<h4 id="（9）clickhouse"><a href="#（9）clickhouse" class="headerlink" title="（9）clickhouse"></a>（9）clickhouse</h4><p>介绍：面向列的数据库管理系统，用于在线分析查询</p>
+<p>优点</p>
+<ul>
+<li>开源</li>
+<li>查询速度快</li>
+<li>容错性高</li>
+<li>可靠性强</li>
+<li>扩展性高</li>
+<li>易用性高</li>
+<li>支持SQL，在线查询，近似计算</li>
+</ul>
+<p>缺点</p>
+<ul>
+<li>不支持事务</li>
+<li>修改/删除支持差</li>
+</ul>
+<h2 id="2-公司内部"><a href="#2-公司内部" class="headerlink" title="2. 公司内部"></a>2. 公司内部</h2><h4 id="（1）-天机阁1-0"><a href="#（1）-天机阁1-0" class="headerlink" title="（1） 天机阁1.0"></a>（1） 天机阁1.0</h4><ul>
+<li>zipkin协议 + 鹰眼架构</li>
+<li>需要SDK和agent，外部依赖重</li>
+<li>只有trace，无log和metric</li>
+<li>数据延迟60s</li>
+<li>不支持私有化</li>
+<li>不支持多租户</li>
+</ul>
+<h4 id="（2）-天机阁2-0"><a href="#（2）-天机阁2-0" class="headerlink" title="（2） 天机阁2.0"></a>（2） 天机阁2.0</h4><ul>
+<li>2020年底上线</li>
+<li>IP相关需要自行扩展</li>
+<li>数据不标准，需要特殊处理</li>
+<li>安全性/主题区分需要考虑</li>
+</ul>
+]]></content>
+      <categories>
+        <category>答辩</category>
+        <category>模调</category>
+      </categories>
+      <tags>
+        <tag>trace</tag>
+        <tag>system</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>慢查询 &amp; 限流 &amp; 限频</title>
+    <url>/2021/11/09/search/</url>
+    <content><![CDATA[<h2 id="1-慢查询"><a href="#1-慢查询" class="headerlink" title="1. 慢查询"></a>1. 慢查询</h2><h4 id="（1）ctsdb：30s超时"><a href="#（1）ctsdb：30s超时" class="headerlink" title="（1）ctsdb：30s超时"></a>（1）ctsdb：30s超时</h4><p>影响：CPU，内存</p>
+<p>优化：</p>
+<ul>
+<li>索引，不用通配符</li>
+<li>agg改成composite</li>
+<li>分片数据</li>
+<li>聚合拆分成多个，避免分桶太多</li>
+<li>独立协调节点</li>
+<li>routing</li>
+<li>增加刷新间隔</li>
+<li>配置熔断：内存限制</li>
+</ul>
+<h4 id="（2）fmha"><a href="#（2）fmha" class="headerlink" title="（2）fmha"></a>（2）fmha</h4><p>影响：session长期占用，cpu、内存升高，可用性降低</p>
+<p>优化：</p>
+<ul>
+<li>主键</li>
+<li>索引减少like</li>
+<li>拆表/中间表</li>
+<li>查询分解</li>
+<li>limit优化</li>
+</ul>
+<h2 id="2-限流"><a href="#2-限流" class="headerlink" title="2. 限流"></a>2. 限流</h2><h4 id="（1）接口限流"><a href="#（1）接口限流" class="headerlink" title="（1）接口限流"></a>（1）接口限流</h4><ul>
+<li>计数算法：简单</li>
+<li>滑动窗口：存储空间大</li>
+<li>漏桶算法</li>
+<li>令牌桶：允许一定程度的并发</li>
+</ul>
+<h4 id="（2）数据上报限流"><a href="#（2）数据上报限流" class="headerlink" title="（2）数据上报限流"></a>（2）数据上报限流</h4><p>writer：</p>
+<ul>
+<li>RateLimiter，令牌桶</li>
+<li>2w/s/线程</li>
+</ul>
+<p>processor：</p>
+<ul>
+<li>writer queue满了，熔断，蓄水池</li>
+<li>恢复，writer queue</li>
+<li>蓄水池，writer queue</li>
+</ul>
+<p>Loader：</p>
+<ul>
+<li>LoadQuata，数值判断大小</li>
+<li>6w/s/线程</li>
+</ul>
+]]></content>
+      <categories>
+        <category>答辩</category>
+        <category>其他</category>
+      </categories>
+      <tags>
+        <tag>search</tag>
+        <tag>server</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>flink &amp; spark &amp; storm &amp; oceanus &amp; 缓存</title>
+    <url>/2021/11/09/stream-computing/</url>
+    <content><![CDATA[<h2 id="1-flink"><a href="#1-flink" class="headerlink" title="1. flink"></a>1. flink</h2><p>流式模型：原生流处理，一条一条处理<br>数据处理保证：高，有且仅有一次，检查点机制<br>容错性：中等，checkpoint，快照<br>容错开销：低，小批量数据（轻量级，不阻塞流，checkpoint异步，不影响吞吐量）<br>延时：低，一条一条处理<br>吞吐量：高，缓存块 + 超时值</p>
+<h2 id="2-spark"><a href="#2-spark" class="headerlink" title="2. spark"></a>2. spark</h2><p>流式模型：微批处理<br>数据处理保证：高，有且仅有一次，重新计算<br>容错性：高，RDD checkpoint（弹性分布式数据集）（通过整个数据集的计算流程的血缘关系实现重建）<br>容错开销：中等（有状态计算需要额外的RDD维护状态，影响吞吐）<br>延时：中等，小批次处理<br>吞吐量：高，微批次</p>
+<h2 id="3-storm"><a href="#3-storm" class="headerlink" title="3. storm"></a>3. storm</h2><p>流式模型：原生流处理<br>数据处理保证：中等，至少一次，重复<br>容错性：中等，上有数据备份 + ACK<br>容错开销：高，ACK（所有节点每个节点ACK一次，每条data都做ACK）<br>延时：低，一条一条处理<br>吞吐量：低，ACK，容错影响<br>易用性：低，遵循topology</p>
+<h2 id="4-oceanus"><a href="#4-oceanus" class="headerlink" title="4. oceanus"></a>4. oceanus</h2><p>版本支持：外部最新1.13.2，内部还在1.0.9<br>特性支持：不足<br>运维：值班制度<br>其他：小bug多</p>
+]]></content>
+      <categories>
+        <category>答辩</category>
+        <category>流式计算</category>
+      </categories>
+      <tags>
+        <tag>stream-computing</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>TDW &amp; Hermes</title>
+    <url>/2021/11/09/tdw-hermes/</url>
+    <content><![CDATA[<h2 id="1-经过三层存储"><a href="#1-经过三层存储" class="headerlink" title="1. 经过三层存储"></a>1. 经过三层存储</h2><h2 id="2-tdw性能差"><a href="#2-tdw性能差" class="headerlink" title="2. tdw性能差"></a>2. tdw性能差</h2><p>tdw基于hive，hdfs</p>
+<h2 id="3-hermes性能差"><a href="#3-hermes性能差" class="headerlink" title="3. hermes性能差"></a>3. hermes性能差</h2><p>基于HDFS，比不上本地文件系统<br>tdw -&gt; hermes，LZ离线导入，提交MR任务构建索引，受资源池影响，还需要进行索引合并</p>
+]]></content>
+      <categories>
+        <category>答辩</category>
+        <category>大数据</category>
+      </categories>
+      <tags>
+        <tag>big-data</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>权限 &amp; 数据安全</title>
+    <url>/2021/11/09/%E6%9D%83%E9%99%90-%E6%95%B0%E6%8D%AE%E5%AE%89%E5%85%A8/</url>
+    <content><![CDATA[<h2 id="1-权限"><a href="#1-权限" class="headerlink" title="1. 权限"></a>1. 权限</h2><ul>
+<li>web：权限系统</li>
+<li>openapi：鉴权系统 + 配置</li>
+<li>CTSDB：用户名密码</li>
+<li>CKV+：用户名密码</li>
+<li>FMHA：强密码</li>
+</ul>
+<h2 id="2-安全"><a href="#2-安全" class="headerlink" title="2. 安全"></a>2. 安全</h2><h4 id="（1）存储安全"><a href="#（1）存储安全" class="headerlink" title="（1）存储安全"></a>（1）存储安全</h4><ul>
+<li>kafka<ul>
+<li>副本 + leader</li>
+<li>加密（SSL，影响性能） + 身份验证 + 授权</li>
+</ul>
+</li>
+<li>ctsdb<ul>
+<li>副本 + 选举</li>
+<li>密码 + VPC网络隔离</li>
+<li>身份认证 + 用户鉴权</li>
+</ul>
+</li>
+<li>FMHA<ul>
+<li>一地三中心</li>
+<li>密码 + 防火墙</li>
+<li>半同步 + GTID + read_only</li>
+</ul>
+</li>
+<li>ckv+<ul>
+<li>数据同步：异步 + 强一致</li>
+<li>数据备份：本地快照 + 冷备</li>
+<li>副本分片：主备切换</li>
+</ul>
+</li>
+</ul>
+<h4 id="（2）信息安全"><a href="#（2）信息安全" class="headerlink" title="（2）信息安全"></a>（2）信息安全</h4><p>数据隔离：权限<br>环境：部署<br>事后审计</p>
+<h4 id="（3）传输安全"><a href="#（3）传输安全" class="headerlink" title="（3）传输安全"></a>（3）传输安全</h4><p>kafka：加密 + SSL<br>FMHA：加密<br>CTSDB：内部TLS + 外部HTTPS<br>ckv+：无</p>
+]]></content>
+      <categories>
+        <category>答辩</category>
+        <category>安全</category>
+      </categories>
+      <tags>
+        <tag>auth</tag>
+        <tag>data-safe</tag>
+      </tags>
+  </entry>
 </search>
