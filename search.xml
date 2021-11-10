@@ -249,7 +249,41 @@
 <li>日志无法长期保存（下线清理）</li>
 <li>不支持高并发查询（qps 100，单次查询利用所有资源）</li>
 </ul>
-<h2 id="5-es"><a href="#5-es" class="headerlink" title="5. es"></a>5. es</h2><h2 id="6-hermes"><a href="#6-hermes" class="headerlink" title="6. hermes"></a>6. hermes</h2><p>大数据实时分析系统<br>海量数据实时写入和存储，低延迟查询分析的平台<br>索引的读写和分布式架构自研，底层存储基于HDFS，集群管理利用ZK</p>
+<h2 id="5-es：全文索引"><a href="#5-es：全文索引" class="headerlink" title="5. es：全文索引"></a>5. es：全文索引</h2><h3 id="（1）mongodb"><a href="#（1）mongodb" class="headerlink" title="（1）mongodb"></a>（1）mongodb</h3><ul>
+<li>文档查询性能：倒排索引/KDB-Tree比B+树厉害</li>
+<li>聚合分析能力：ES提供doc-value，比mongodb行式快</li>
+<li>分布式（集群分片副本）：ES自动 &gt; mongodb手动</li>
+<li>ES特色功能比mongodb多：kibana，监控等等</li>
+<li>ES适合JAVA开发，RESTFUL API，mongodb基于C++</li>
+<li>ES字段自动索引，mongodb需要手动建立</li>
+<li>存储：内存，不考虑</li>
+</ul>
+<h3 id="（2）druid"><a href="#（2）druid" class="headerlink" title="（2）druid"></a>（2）druid</h3><ul>
+<li>rollup后druid明细数据会丢失，ES可查询明细数据</li>
+<li>druid适合单类聚合查询，不适合复杂的</li>
+<li>druid外部依赖多，部署运维麻烦（存储使用HDFS)；ES搭建十分简单，外部依赖少</li>
+<li>druid不支持全文检索</li>
+</ul>
+<h3 id="（3）clickhouse"><a href="#（3）clickhouse" class="headerlink" title="（3）clickhouse"></a>（3）clickhouse</h3><ul>
+<li>建表需要专家参与：索引匹配则效率高，不匹配效率波动大</li>
+<li>并发能力弱：单次查询利用所有资源</li>
+<li>不支持全文检索：列式存储</li>
+<li>不适合通过其键检索单行的点查询，es适合点查询</li>
+<li>分布式，无节点发现能力，需手动配置（节点，分片，副本）</li>
+</ul>
+<h3 id="（4）hermes"><a href="#（4）hermes" class="headerlink" title="（4）hermes"></a>（4）hermes</h3><ul>
+<li>读写性能：ES读写性能比Hermes好，因为HDFS的性能比不上本地文件系统</li>
+<li>服务可用性：节点故障时，分片的服务恢复时间相对较长，包括原节点的WAL恢复，索引的online操作；ES可用性较高，多个副本都是online状态，副本切换</li>
+<li>侧重点：hermes侧重数据分析，es侧重搜索和聚合</li>
+<li>运营效益：部门相关系统均选择es/ctsdb，有问题，沟通询问更顺畅方便</li>
+<li>全本搜索 + kibana</li>
+</ul>
+<h3 id="（5）hbase"><a href="#（5）hbase" class="headerlink" title="（5）hbase"></a>（5）hbase</h3><ul>
+<li>查询：hbase不支持复杂查询（列式存储）</li>
+<li>依赖重：hbase无专用查询语言，依赖第三方工具</li>
+<li>Rowkey：hbase依赖Rowkey设计，ES更通用</li>
+</ul>
+<h2 id="6-hermes"><a href="#6-hermes" class="headerlink" title="6. hermes"></a>6. hermes</h2><p>大数据实时分析系统<br>海量数据实时写入和存储，低延迟查询分析的平台<br>索引的读写和分布式架构自研，底层存储基于HDFS，集群管理利用ZK</p>
 <p>缺点</p>
 <ul>
 <li>写入搜索性能差一点（访问HDFS，比不上访问本地文件系统）</li>
@@ -711,6 +745,22 @@
 </ul>
 <h4 id="（2）信息安全"><a href="#（2）信息安全" class="headerlink" title="（2）信息安全"></a>（2）信息安全</h4><p>数据隔离：权限<br>环境：部署<br>事后审计</p>
 <h4 id="（3）传输安全"><a href="#（3）传输安全" class="headerlink" title="（3）传输安全"></a>（3）传输安全</h4><p>kafka：加密 + SSL<br>FMHA：加密<br>CTSDB：内部TLS + 外部HTTPS<br>ckv+：无</p>
+<h4 id="（4）数据泄露措施"><a href="#（4）数据泄露措施" class="headerlink" title="（4）数据泄露措施"></a>（4）数据泄露措施</h4><ul>
+<li>冻结设备，断网</li>
+<li>开启日志记录，开启审计</li>
+<li>修改密码</li>
+<li>确定数据泄露影响</li>
+<li>检查防火墙/子网隔离/杀毒软件/告警</li>
+<li>及时汇报</li>
+<li>发布公告</li>
+</ul>
+<h4 id="（5）数据库防篡改"><a href="#（5）数据库防篡改" class="headerlink" title="（5）数据库防篡改"></a>（5）数据库防篡改</h4><ul>
+<li>开启数据库log日志记录功能</li>
+<li>开启端口的安全策略，限制对外开放</li>
+<li>账户管理，授权</li>
+<li>数字签名</li>
+<li>防火墙</li>
+</ul>
 ]]></content>
       <categories>
         <category>答辩</category>
@@ -719,6 +769,816 @@
       <tags>
         <tag>auth</tag>
         <tag>data-safe</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>SSL+TLS+HTTPS</title>
+    <url>/2021/11/10/SSL-TLS-HTTPS/</url>
+    <content><![CDATA[<h2 id="1-HTTPS"><a href="#1-HTTPS" class="headerlink" title="1. HTTPS"></a>1. HTTPS</h2><p>HTTP + 加密 + 认证 + 完整性保护 = HTTPS</p>
+<p>HTTP，四层，从上到下为：应用层，HTTP，，TCP，IP<br>HTTPS，五层，从上到下为：应用层，HTTP，SSL，TCP，IP</p>
+<h2 id="2-SSL-TLS"><a href="#2-SSL-TLS" class="headerlink" title="2. SSL/TLS"></a>2. SSL/TLS</h2><p>HTTP和TCP之间的中转协议，应用层协议</p>
+<h2 id="3-TLS"><a href="#3-TLS" class="headerlink" title="3. TLS"></a>3. TLS</h2><p>TLS是SSL的升级版</p>
+]]></content>
+      <categories>
+        <category>答辩</category>
+        <category>网络</category>
+      </categories>
+      <tags>
+        <tag>ssl</tag>
+        <tag>ttl</tag>
+        <tag>https</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>oop原则 &amp; cap原理</title>
+    <url>/2021/11/10/oop/</url>
+    <content><![CDATA[<h1 id="oop：Object-Oriented-Programming-面向对象编程"><a href="#oop：Object-Oriented-Programming-面向对象编程" class="headerlink" title="oop：Object Oriented Programming 面向对象编程"></a>oop：Object Oriented Programming 面向对象编程</h1><h2 id="1-单一职责"><a href="#1-单一职责" class="headerlink" title="1. 单一职责"></a>1. 单一职责</h2><p>功能专一，易于复用和重构</p>
+<h2 id="2-开闭原则"><a href="#2-开闭原则" class="headerlink" title="2. 开闭原则"></a>2. 开闭原则</h2><p>在类的设计理念，哪些行为是允许的，哪些行为是不允许的<br>达到类可维护，可扩展，可复用的目的</p>
+<h2 id="3-里式替换"><a href="#3-里式替换" class="headerlink" title="3. 里式替换"></a>3. 里式替换</h2><p>在类的设计中，子类型必须能够替换父类型</p>
+<h2 id="4-依赖倒置"><a href="#4-依赖倒置" class="headerlink" title="4. 依赖倒置"></a>4. 依赖倒置</h2><p>在类的设计上，应当面向接口编程，而不是面向实现<br>高层模块不应该依赖底层模块，两者应该依赖其抽象<br>抽象不应该依赖细节，细节应该依赖抽象</p>
+<h2 id="5-接口隔离"><a href="#5-接口隔离" class="headerlink" title="5. 接口隔离"></a>5. 接口隔离</h2><p>在接口设计中，应当杜绝不必要的接口</p>
+<h2 id="6-迪米特法则"><a href="#6-迪米特法则" class="headerlink" title="6. 迪米特法则"></a>6. 迪米特法则</h2><p>在类的设计中，调用类不需要知道被调用类的内部实现或者具体的实例对象</p>
+<h1 id="CAP原理"><a href="#CAP原理" class="headerlink" title="CAP原理"></a>CAP原理</h1><p>分布式系统中</p>
+<ul>
+<li>Consistency一致性</li>
+<li>Availability可用性，</li>
+<li>Partition tolerance容错性</li>
+</ul>
+]]></content>
+      <categories>
+        <category>答辩</category>
+        <category>原理</category>
+      </categories>
+      <tags>
+        <tag>oop</tag>
+        <tag>cap</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>分布式事务一致性解决方案</title>
+    <url>/2021/11/10/%E5%88%86%E5%B8%83%E5%BC%8F%E4%BA%8B%E5%8A%A1%E4%B8%80%E8%87%B4%E6%80%A7%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88/</url>
+    <content><![CDATA[<h2 id="1-数据一致性"><a href="#1-数据一致性" class="headerlink" title="1. 数据一致性"></a>1. 数据一致性</h2><p>主库、从库、缓存数据一致性<br>多副本数据一致性<br>分布式服务的数据一致性</p>
+<h2 id="2-概念"><a href="#2-概念" class="headerlink" title="2. 概念"></a>2. 概念</h2><p>强一致性<br>弱一致性<br>最终一致性</p>
+<h2 id="3-原理"><a href="#3-原理" class="headerlink" title="3. 原理"></a>3. 原理</h2><ul>
+<li>事务的ACID特性<ul>
+<li>原子性（Atomicity）</li>
+<li>一致性（Consistency）</li>
+<li>隔离性（Isolation）</li>
+<li>持久性（Durability）</li>
+</ul>
+</li>
+<li>CAP定理，无法同时满足<ul>
+<li>Consistency，一致性</li>
+<li>Availability，可用性</li>
+<li>Partition tolerance，分区容错性</li>
+</ul>
+</li>
+<li>BASE理论：BASE 理论是针对 NoSQL 数据库而言的，它是对 CAP 理论中一致性（C）和可用性（A）进行权衡的结果<ul>
+<li>基本可用（Basically Available）</li>
+<li>软状态（Soft-state）</li>
+<li>最终一致性（Eventually Consistent）</li>
+</ul>
+</li>
+</ul>
+<h2 id="4-协议"><a href="#4-协议" class="headerlink" title="4. 协议"></a>4. 协议</h2><ul>
+<li>两阶段提交</li>
+<li>三阶段提交</li>
+<li>TCC</li>
+<li>Paxos</li>
+<li>ZAB：zk使用</li>
+<li>Raft：先选出主节点</li>
+<li>Quorum</li>
+<li>Gossip</li>
+</ul>
+<h2 id="5-强一致性方案"><a href="#5-强一致性方案" class="headerlink" title="5. 强一致性方案"></a>5. 强一致性方案</h2><h3 id="（1）2PC，二阶段提交协议"><a href="#（1）2PC，二阶段提交协议" class="headerlink" title="（1）2PC，二阶段提交协议"></a>（1）2PC，二阶段提交协议</h3><ul>
+<li>阶段一：Prepare，准备，投票</li>
+<li>阶段二：Commit/Cancel，提交，回滚<br>缺点：阻塞范围广，不适合高并发场景</li>
+</ul>
+<h3 id="（2）DTP-XA规范"><a href="#（2）DTP-XA规范" class="headerlink" title="（2）DTP/XA规范"></a>（2）DTP/XA规范</h3><ul>
+<li>AP：应用程序</li>
+<li>RMS：资源管理器，参与者</li>
+<li>TM：事务管理器，协调者</li>
+<li>XA：组件之间香菇操作的接口</li>
+</ul>
+<h2 id="6-最终一致性方案"><a href="#6-最终一致性方案" class="headerlink" title="6. 最终一致性方案"></a>6. 最终一致性方案</h2><h3 id="（1）TCC"><a href="#（1）TCC" class="headerlink" title="（1）TCC"></a>（1）TCC</h3><ul>
+<li>T：try，锁定资源</li>
+<li>C：Confirm，确认，补偿</li>
+<li>C：Cancel<br>阻塞时间范围短，性能比2PC有提升</li>
+</ul>
+<h3 id="（2）本地事务状态表"><a href="#（2）本地事务状态表" class="headerlink" title="（2）本地事务状态表"></a>（2）本地事务状态表</h3><p>调用方调用分布式事务之前，将待执行的事务流程和状态信息，存储到数据库中，之后每次调用成功，更新对应的事务状态，失败则终止</p>
+<h3 id="（3）消息中间件"><a href="#（3）消息中间件" class="headerlink" title="（3）消息中间件"></a>（3）消息中间件</h3><ul>
+<li>消息中间件，不支持事务</li>
+<li>消息中间件，支持事务：定时任务的工作交给消息中间件来提供</li>
+</ul>
+<h2 id="7-弱一致性方案"><a href="#7-弱一致性方案" class="headerlink" title="7. 弱一致性方案"></a>7. 弱一致性方案</h2><h3 id="（1）基于状态的补偿"><a href="#（1）基于状态的补偿" class="headerlink" title="（1）基于状态的补偿"></a>（1）基于状态的补偿</h3><p>事后处理机制</p>
+<h3 id="（2）重试（-回滚）-告警-人工修复"><a href="#（2）重试（-回滚）-告警-人工修复" class="headerlink" title="（2）重试（+回滚） + 告警 + 人工修复"></a>（2）重试（+回滚） + 告警 + 人工修复</h3><p>放弃一致性<br>成本最低，最被动</p>
+<h3 id="（3）事后处理"><a href="#（3）事后处理" class="headerlink" title="（3）事后处理"></a>（3）事后处理</h3><p>对账</p>
+<h2 id="7-结论"><a href="#7-结论" class="headerlink" title="7. 结论"></a>7. 结论</h2><p>数据一致性要求高：金融银行，2PC，强一致性方案<br>可用性 + 一致性：互联网应用，Base理论，最终一致性<br>极端场景：业务特性，弱一致性</p>
+]]></content>
+      <categories>
+        <category>答辩</category>
+        <category>分布式事务</category>
+      </categories>
+      <tags>
+        <tag>distributed computing</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>容灾</title>
+    <url>/2021/11/10/%E5%AE%B9%E7%81%BE/</url>
+    <content><![CDATA[<p>集群/set化作用</p>
+<ul>
+<li>流量拆分</li>
+<li>故障隔离</li>
+<li>异地容灾</li>
+</ul>
+]]></content>
+  </entry>
+  <entry>
+    <title>应用设计模式</title>
+    <url>/2021/11/10/%E5%BA%94%E7%94%A8%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/</url>
+    <content><![CDATA[<h2 id="1-创建型：解决对象的创建问题"><a href="#1-创建型：解决对象的创建问题" class="headerlink" title="1. 创建型：解决对象的创建问题"></a>1. 创建型：解决对象的创建问题</h2><h3 id="（1）单例模式"><a href="#（1）单例模式" class="headerlink" title="（1）单例模式"></a>（1）单例模式</h3><p>创建全局唯一的对象<br>实现方式：饿汉式，懒汉式，双重检测，静态内部类，枚举</p>
+<h3 id="（2）工厂模式"><a href="#（2）工厂模式" class="headerlink" title="（2）工厂模式"></a>（2）工厂模式</h3><p>简单工厂，工厂方法，抽象工厂<br>用来创建不同但是相关类型的对象（继承同一父类或者接口的一组子类），由给定参数决定创建哪种类型的对象</p>
+<h3 id="（3）建造者模式"><a href="#（3）建造者模式" class="headerlink" title="（3）建造者模式"></a>（3）建造者模式</h3><p>用来创建复杂对象，可以通过设置不同的可选参数，“定制化”地创建不同的参数。<br>将一个复杂对象的构建与他的表示分离，使得同样的创建过程，可以创建不同的表示<br>建立胖小人，瘦小人</p>
+<h3 id="（4）原型模式"><a href="#（4）原型模式" class="headerlink" title="（4）原型模式"></a>（4）原型模式</h3><p>对象创建成本比较大，同一个类的不同对象之间的差别不大，可以利用已有对象（原型）进行复制/拷贝的方式，来创建新对象，包括了深拷贝和浅拷贝。</p>
+<h2 id="2-结构设计模式：总结了类或者对象组合在一起的经典结构"><a href="#2-结构设计模式：总结了类或者对象组合在一起的经典结构" class="headerlink" title="2. 结构设计模式：总结了类或者对象组合在一起的经典结构"></a>2. 结构设计模式：总结了类或者对象组合在一起的经典结构</h2><h3 id="（1）代理模式"><a href="#（1）代理模式" class="headerlink" title="（1）代理模式"></a>（1）代理模式</h3><p>在不改变原始类接口的条件下，为原始类定义一个代理类，目的是控制访问，而非加强功能。<br>一般用于非功能性需求：日志，监控，统计等等</p>
+<h3 id="（2）桥接模式"><a href="#（2）桥接模式" class="headerlink" title="（2）桥接模式"></a>（2）桥接模式</h3><p>将抽象和实现解耦，能独立开发<br>组合优先于继承</p>
+<h3 id="（3）装饰器模式"><a href="#（3）装饰器模式" class="headerlink" title="（3）装饰器模式"></a>（3）装饰器模式</h3><p>解决继承关系过于复杂的问题<br>通过组合，代替继承，给原始类添加增强功能</p>
+<h3 id="（4）适配器模式"><a href="#（4）适配器模式" class="headerlink" title="（4）适配器模式"></a>（4）适配器模式</h3><p>提供跟原始类不同的接口<br>将不兼容的接口转换为可兼容的接口<br>类适配器（继承） + 对象适配器（组合）</p>
+<h3 id="（5）门面模式"><a href="#（5）门面模式" class="headerlink" title="（5）门面模式"></a>（5）门面模式</h3><p>封装细粒度的接口，提供组合各个细粒度接口的高层次接口，来提高接口的易用性</p>
+<h3 id="（6）组合模式"><a href="#（6）组合模式" class="headerlink" title="（6）组合模式"></a>（6）组合模式</h3><p>主要用来处理树形结构数据</p>
+<h3 id="（7）享元模式"><a href="#（7）享元模式" class="headerlink" title="（7）享元模式"></a>（7）享元模式</h3><p>被共享的单元。<br>复用对象，节省内存，享元对象是不可变对象。</p>
+<h2 id="3-行为型设计模式：类或对象之间的交互"><a href="#3-行为型设计模式：类或对象之间的交互" class="headerlink" title="3. 行为型设计模式：类或对象之间的交互"></a>3. 行为型设计模式：类或对象之间的交互</h2><h3 id="（1）观察者类型"><a href="#（1）观察者类型" class="headerlink" title="（1）观察者类型"></a>（1）观察者类型</h3><h3 id="（2）模板模式"><a href="#（2）模板模式" class="headerlink" title="（2）模板模式"></a>（2）模板模式</h3><h3 id="（3）策略模式"><a href="#（3）策略模式" class="headerlink" title="（3）策略模式"></a>（3）策略模式</h3><h3 id="（4）职责链模式"><a href="#（4）职责链模式" class="headerlink" title="（4）职责链模式"></a>（4）职责链模式</h3><p>多个处理器依次处理同一个请求<br>实现过滤器，拦截器</p>
+<h3 id="（5）迭代器模式"><a href="#（5）迭代器模式" class="headerlink" title="（5）迭代器模式"></a>（5）迭代器模式</h3><p>游标模式，用来遍历集合对象</p>
+<h3 id="（6）状态模式"><a href="#（6）状态模式" class="headerlink" title="（6）状态模式"></a>（6）状态模式</h3><p>用来实现状态机</p>
+<h3 id="（7）访问者模式"><a href="#（7）访问者模式" class="headerlink" title="（7）访问者模式"></a>（7）访问者模式</h3><h3 id="（8）备忘录模式"><a href="#（8）备忘录模式" class="headerlink" title="（8）备忘录模式"></a>（8）备忘录模式</h3><p>快照模式<br>用来防丢失，撤销，恢复</p>
+<h3 id="（9）命令模式"><a href="#（9）命令模式" class="headerlink" title="（9）命令模式"></a>（9）命令模式</h3><h3 id="（10）解释器模式"><a href="#（10）解释器模式" class="headerlink" title="（10）解释器模式"></a>（10）解释器模式</h3><h3 id="（11）中介模式"><a href="#（11）中介模式" class="headerlink" title="（11）中介模式"></a>（11）中介模式</h3>]]></content>
+      <categories>
+        <category>答辩</category>
+        <category>原理</category>
+      </categories>
+      <tags>
+        <tag>design pattern</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>机型分析</title>
+    <url>/2021/11/10/%E6%9C%BA%E5%9E%8B%E5%88%86%E6%9E%90/</url>
+    <content><![CDATA[<h2 id="1-计算型"><a href="#1-计算型" class="headerlink" title="1. 计算型"></a>1. 计算型</h2><p>B70，M10：CPU高，内存高</p>
+<h2 id="2-存储"><a href="#2-存储" class="headerlink" title="2. 存储"></a>2. 存储</h2><p>Z4（Z3，TS）：磁盘高，SSD高</p>
+<h2 id="3-云机器"><a href="#3-云机器" class="headerlink" title="3. 云机器"></a>3. 云机器</h2><h2 id="4-中间层"><a href="#4-中间层" class="headerlink" title="4. 中间层"></a>4. 中间层</h2><p>B6：内存还行</p>
+<h2 id="5-虚拟机"><a href="#5-虚拟机" class="headerlink" title="5. 虚拟机"></a>5. 虚拟机</h2><h2 id="6-机型命名-V6-0"><a href="#6-机型命名-V6-0" class="headerlink" title="6. 机型命名 V6.0"></a>6. 机型命名 V6.0</h2><p>CG1L - 10G</p>
+<h4 id="（1）第一段：英文，机型特征"><a href="#（1）第一段：英文，机型特征" class="headerlink" title="（1）第一段：英文，机型特征"></a>（1）第一段：英文，机型特征</h4><ul>
+<li>计算类：C（Computing），合并B和M（V5.0，内存和CPU好）</li>
+<li>存储类：S（Storage）</li>
+<li>大数据类：B（Bigdata）</li>
+<li>异构类：F（FPGA），G（GPU）</li>
+<li>专用类：D（Dedicated，替代Z）</li>
+<li>网络类：N（Networking server）</li>
+<li>项目类：P（Project），代替原Other机型</li>
+</ul>
+<h4 id="（2）第二段：业务属性"><a href="#（2）第二段：业务属性" class="headerlink" title="（2）第二段：业务属性"></a>（2）第二段：业务属性</h4><ul>
+<li>C类分G：通用，General</li>
+<li>S类分热、湿、冷：<ul>
+<li>SH，热数据，使用SSD硬盘，TS8X（V5.0）</li>
+<li>SW，温数据，TS60，TSH（混合SSD和Sate）</li>
+<li>SC，冷数据，使用4T和8T更大硬盘</li>
+</ul>
+</li>
+<li>G类分Traning，Inference和Rendering</li>
+</ul>
+<h4 id="（3）第三段：数字"><a href="#（3）第三段：数字" class="headerlink" title="（3）第三段：数字"></a>（3）第三段：数字</h4><p>顺排，体现统一业务属性的不同细分场景<br>体现CPU，硬盘，内存</p>
+<h4 id="（4）第四段：字母"><a href="#（4）第四段：字母" class="headerlink" title="（4）第四段：字母"></a>（4）第四段：字母</h4><p>非必选，机型小属性，比如液冷用L</p>
+<h4 id="（5）第五段：网卡速率"><a href="#（5）第五段：网卡速率" class="headerlink" title="（5）第五段：网卡速率"></a>（5）第五段：网卡速率</h4><h2 id="所有机型对比"><a href="#所有机型对比" class="headerlink" title="所有机型对比"></a>所有机型对比</h2><table>
+<thead>
+<tr>
+<th>名称</th>
+<th>类型</th>
+<th>用途</th>
+<th>CPU</th>
+<th>内存</th>
+<th>磁盘/SSD</th>
+<th>网络类型</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>V4-8-100</td>
+<td>虚拟机</td>
+<td></td>
+<td>4</td>
+<td>8</td>
+<td>100/0</td>
+<td>千兆</td>
+</tr>
+<tr>
+<td>V6-15-100</td>
+<td>虚拟机</td>
+<td></td>
+<td>6</td>
+<td>15</td>
+<td>100/0</td>
+<td>千兆</td>
+</tr>
+<tr>
+<td>V8-16-200</td>
+<td>虚拟机</td>
+<td></td>
+<td>8</td>
+<td>16</td>
+<td>200/0</td>
+<td>千兆</td>
+</tr>
+<tr>
+<td>V16-24-300</td>
+<td>虚拟机</td>
+<td></td>
+<td>16</td>
+<td>64</td>
+<td>300/0</td>
+<td>万兆</td>
+</tr>
+<tr>
+<td>V23-128-800</td>
+<td>虚拟机</td>
+<td></td>
+<td>24</td>
+<td>128</td>
+<td>800/0</td>
+<td>万兆</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>A5（停）</td>
+<td>实体机</td>
+<td>后台数据库</td>
+<td>4</td>
+<td>32</td>
+<td>300*6/0</td>
+<td>千兆</td>
+</tr>
+<tr>
+<td>B6</td>
+<td>实体机</td>
+<td>中间层</td>
+<td>2<em>6</em>2</td>
+<td>64</td>
+<td>300/0</td>
+<td>千兆</td>
+</tr>
+<tr>
+<td>B70</td>
+<td>实体机</td>
+<td>计算</td>
+<td>2<em>12</em>2</td>
+<td>128</td>
+<td>300*6/0</td>
+<td>万兆</td>
+</tr>
+<tr>
+<td>C1</td>
+<td>实体机</td>
+<td>前端接入层</td>
+<td>1<em>4</em>2</td>
+<td>16</td>
+<td>1024</td>
+<td>千兆</td>
+</tr>
+<tr>
+<td>M1</td>
+<td>实体机</td>
+<td>虚拟化，大内存</td>
+<td>2<em>6</em>2</td>
+<td>128</td>
+<td>900/0</td>
+<td>千兆</td>
+</tr>
+<tr>
+<td>M2</td>
+<td>实体机</td>
+<td>虚拟化</td>
+<td>2<em>6</em>2</td>
+<td>64</td>
+<td>900/0</td>
+<td>千兆</td>
+</tr>
+<tr>
+<td>M10</td>
+<td>实体机</td>
+<td>计算</td>
+<td>2<em>12</em>2</td>
+<td>128</td>
+<td>300*6/0</td>
+<td>万兆</td>
+</tr>
+<tr>
+<td>TS6</td>
+<td>架构部TFS</td>
+<td>大存储</td>
+<td>1<em>6</em>2</td>
+<td>32</td>
+<td>2T*12/240</td>
+<td>千兆</td>
+</tr>
+<tr>
+<td>TS60</td>
+<td>实体机</td>
+<td>大存储</td>
+<td>24</td>
+<td>64</td>
+<td>2T*12/80</td>
+<td>万兆</td>
+</tr>
+<tr>
+<td>TS8</td>
+<td>架构部TSSD/微信</td>
+<td>数据库存储</td>
+<td>2<em>6</em>2</td>
+<td>32</td>
+<td>0/300*12</td>
+<td>千兆</td>
+</tr>
+<tr>
+<td>TS80</td>
+<td>架构部TSSD/微信</td>
+<td>数据库存储</td>
+<td>24</td>
+<td>64</td>
+<td>1.8T*4/80</td>
+<td>万兆</td>
+</tr>
+<tr>
+<td>TS90</td>
+<td>云平台部</td>
+<td>存储</td>
+<td>24</td>
+<td>256</td>
+<td>0/800*12</td>
+<td>万兆</td>
+</tr>
+<tr>
+<td>TSC1</td>
+<td>实体机</td>
+<td></td>
+<td>12</td>
+<td>32</td>
+<td>24576/0</td>
+<td>千兆</td>
+</tr>
+<tr>
+<td>TSC10</td>
+<td>实体机</td>
+<td></td>
+<td>12</td>
+<td>32</td>
+<td>24576/240</td>
+<td>万兆</td>
+</tr>
+<tr>
+<td>TS5</td>
+<td>实体机</td>
+<td>存储</td>
+<td>2*6</td>
+<td>64</td>
+<td>2T*12</td>
+<td>hadoop使用</td>
+</tr>
+<tr>
+<td>TS9</td>
+<td>云平台部</td>
+<td>SSD高性能</td>
+<td>2*6</td>
+<td>128</td>
+<td>0/3100（480*8）</td>
+<td></td>
+</tr>
+<tr>
+<td>Z3</td>
+<td>实体机</td>
+<td>互娱存储</td>
+<td>24</td>
+<td>64</td>
+<td>300*2/1228</td>
+<td>千兆</td>
+</tr>
+<tr>
+<td>Z30</td>
+<td>实体机</td>
+<td></td>
+<td>24</td>
+<td>238</td>
+<td>300*4/2.0T</td>
+<td>万兆</td>
+</tr>
+<tr>
+<td>Z4</td>
+<td>实体机</td>
+<td>CFT存储</td>
+<td>24</td>
+<td>64</td>
+<td>300*2/0</td>
+<td></td>
+</tr>
+<tr>
+<td>G7</td>
+<td>实体机</td>
+<td></td>
+<td>28</td>
+<td>256</td>
+<td>0/2288</td>
+<td>万兆</td>
+</tr>
+<tr>
+<td>G6</td>
+<td>实体机</td>
+<td></td>
+<td>28</td>
+<td>256</td>
+<td>600/4800</td>
+<td>万兆</td>
+</tr>
+<tr>
+<td>CG1-10G</td>
+<td>替代B70,M10</td>
+<td>计算类</td>
+<td>80</td>
+<td>192</td>
+<td>0/1440</td>
+<td>万兆</td>
+</tr>
+<tr>
+<td>CG2-10G</td>
+<td></td>
+<td>特征类</td>
+<td>40</td>
+<td>1384</td>
+<td>0/2880</td>
+<td>万兆</td>
+</tr>
+<tr>
+<td>SC3-10G</td>
+<td>替代TSC20</td>
+<td>存储类</td>
+<td>8</td>
+<td>64</td>
+<td>144000/480</td>
+<td>万兆</td>
+</tr>
+<tr>
+<td>SH1-10G</td>
+<td>替代TS80</td>
+<td>存储类</td>
+<td>16</td>
+<td>64</td>
+<td>0/7680</td>
+<td>万兆</td>
+</tr>
+<tr>
+<td>SH3-10G</td>
+<td>替代Z30</td>
+<td>存储类</td>
+<td>16</td>
+<td>128</td>
+<td>3600/3200</td>
+<td>万兆</td>
+</tr>
+<tr>
+<td>S3·2*LARGE16.C200</td>
+<td>云机型</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>D1</td>
+<td>云机型</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>I3</td>
+<td>云机型</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>M3</td>
+<td>云机型</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Y0-MI52-25G</td>
+<td>云机型</td>
+<td></td>
+<td>8</td>
+<td>40</td>
+<td>2T</td>
+<td></td>
+</tr>
+</tbody></table>
+<p>1 CGI = 1.7 M10<br>1 V8 = 2 V4 = 1 C1</p>
+<p>TS80比TS8成本低，替代品<br>TS90和TS9差不多，属于SSD中性能比较低的</p>
+<p>A5 -&gt; Z3/Z4<br>A5 -&gt; TS8/TS80</p>
+<p>T5：存储大，性能中<br>T6：存储大，性能高</p>
+<p>TS5合并到TS6<br>TS8合并到Z3/Z4</p>
+]]></content>
+      <categories>
+        <category>答辩</category>
+        <category>机型</category>
+      </categories>
+      <tags>
+        <tag>computer type</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>模调系统</title>
+    <url>/2021/11/10/%E6%A8%A1%E8%B0%83%E7%B3%BB%E7%BB%9F/</url>
+    <content><![CDATA[<h2 id="1-系统要求"><a href="#1-系统要求" class="headerlink" title="1. 系统要求"></a>1. 系统要求</h2><h4 id="（1）逻辑耦合低"><a href="#（1）逻辑耦合低" class="headerlink" title="（1）逻辑耦合低"></a>（1）逻辑耦合低</h4><ul>
+<li>拆分成五个模块</li>
+<li>各模块单独配置</li>
+</ul>
+<h4 id="（2）可维护性强"><a href="#（2）可维护性强" class="headerlink" title="（2）可维护性强"></a>（2）可维护性强</h4><ul>
+<li>每个模块调整，不影响其他模块</li>
+<li>接入监控，可以看到每个模块的处理状态</li>
+</ul>
+<h4 id="（3）可扩展性高"><a href="#（3）可扩展性高" class="headerlink" title="（3）可扩展性高"></a>（3）可扩展性高</h4><ul>
+<li>数据拉去：支持配置多个kafka集群</li>
+<li>数据处理<ul>
+<li>通过filter，增加处理流程</li>
+<li>不规范裁剪 + 特殊处理 + IP补充 + 其他</li>
+</ul>
+</li>
+<li>数据缓存<ul>
+<li>通过规则放到不同的列表中</li>
+<li>IP + msgno尾号</li>
+</ul>
+</li>
+<li>数据拉取计算<ul>
+<li>可配置不同的算法</li>
+<li>找FCGI入口 + 计算调用树</li>
+</ul>
+</li>
+<li>数据写入：支持写入多个集群</li>
+</ul>
+<h2 id="2-容量"><a href="#2-容量" class="headerlink" title="2. 容量"></a>2. 容量</h2><h4 id="（1）应用服务器"><a href="#（1）应用服务器" class="headerlink" title="（1）应用服务器"></a>（1）应用服务器</h4><table>
+<thead>
+<tr>
+<th></th>
+<th>前端</th>
+<th>后台</th>
+<th>writer</th>
+<th>openapi</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>每天请求量</td>
+<td>400</td>
+<td>400</td>
+<td></td>
+<td>4863</td>
+</tr>
+<tr>
+<td>各接口访问峰值</td>
+<td>15/min</td>
+<td>15/min</td>
+<td></td>
+<td>161/min</td>
+</tr>
+<tr>
+<td>平均请求响应</td>
+<td>0</td>
+<td>0</td>
+<td></td>
+<td>65ms</td>
+</tr>
+<tr>
+<td>最大请求响应</td>
+<td>0</td>
+<td>0</td>
+<td></td>
+<td>61621ms</td>
+</tr>
+<tr>
+<td>网卡I/O流量</td>
+<td></td>
+<td></td>
+<td>入49.5/min，91.5/min；出56.2/min，106.8/min</td>
+<td></td>
+</tr>
+<tr>
+<td>磁盘I/O负载</td>
+<td></td>
+<td></td>
+<td>读平均：0，写平均：5611，写峰值：7961</td>
+<td></td>
+</tr>
+<tr>
+<td>内存使用情况</td>
+<td>平均12.7，峰值14.4</td>
+<td></td>
+<td>平均54，峰值57.2</td>
+<td></td>
+</tr>
+<tr>
+<td>CPU使用情况</td>
+<td>平均3，峰值11</td>
+<td></td>
+<td>平均33，峰值40</td>
+<td></td>
+</tr>
+</tbody></table>
+<h4 id="（2）数据库"><a href="#（2）数据库" class="headerlink" title="（2）数据库"></a>（2）数据库</h4><table>
+<thead>
+<tr>
+<th></th>
+<th>FMHA</th>
+<th>CTSDB</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>当前数据容量</td>
+<td>50-60G</td>
+<td>3T * 7 =21T，470亿</td>
+</tr>
+<tr>
+<td>每天数据增量</td>
+<td></td>
+<td>1.5T * 2 = 3T，66亿</td>
+</tr>
+<tr>
+<td>读峰值/s</td>
+<td>494</td>
+<td>11/min，2/s</td>
+</tr>
+<tr>
+<td>写峰值/s</td>
+<td>290</td>
+<td>10.7w / min</td>
+</tr>
+</tbody></table>
+<h4 id="（3）缓存"><a href="#（3）缓存" class="headerlink" title="（3）缓存"></a>（3）缓存</h4><table>
+<thead>
+<tr>
+<th></th>
+<th>CKV+</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>缓存内容大小</td>
+<td>15-20G</td>
+</tr>
+<tr>
+<td>缓存内容数量</td>
+<td></td>
+</tr>
+<tr>
+<td>缓存过期时间</td>
+<td>30min/24h</td>
+</tr>
+<tr>
+<td>缓存数据结构</td>
+<td>list，set</td>
+</tr>
+<tr>
+<td>读峰值/s</td>
+<td>7985253/min，13.3w/s</td>
+</tr>
+<tr>
+<td>写峰值/s</td>
+<td>7985253/min，13.3w/s</td>
+</tr>
+<tr>
+<td>连接数限制</td>
+<td>2w</td>
+</tr>
+<tr>
+<td>备shard</td>
+<td>不可读，1副本</td>
+</tr>
+</tbody></table>
+<h4 id="（4）消息队列"><a href="#（4）消息队列" class="headerlink" title="（4）消息队列"></a>（4）消息队列</h4><table>
+<thead>
+<tr>
+<th></th>
+<th>kafka</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>每天平均数据增量</td>
+<td>80亿</td>
+</tr>
+<tr>
+<td>消息持久的过期时间</td>
+<td>3天</td>
+</tr>
+<tr>
+<td>读峰值/s</td>
+<td></td>
+</tr>
+<tr>
+<td>写峰值/s</td>
+<td></td>
+</tr>
+<tr>
+<td>每条消息大小</td>
+<td>0.14k</td>
+</tr>
+<tr>
+<td>平均延迟</td>
+<td></td>
+</tr>
+<tr>
+<td>最大延迟</td>
+<td></td>
+</tr>
+</tbody></table>
+<h2 id="3-容错"><a href="#3-容错" class="headerlink" title="3. 容错"></a>3. 容错</h2><p>发生故障时，系统还能继续运行</p>
+<h2 id="4-可伸缩性"><a href="#4-可伸缩性" class="headerlink" title="4. 可伸缩性"></a>4. 可伸缩性</h2><p>kafka：增加分片，broker进入/退出<br>writer：增加进程，提高模块线程数，限速<br>CTSDB：增加副本，node进入/退出</p>
+<h2 id="5-性能"><a href="#5-性能" class="headerlink" title="5. 性能"></a>5. 性能</h2><h4 id="（1）性能测试"><a href="#（1）性能测试" class="headerlink" title="（1）性能测试"></a>（1）性能测试</h4><p>响应时间 + 并发数 + 吞吐量<br>吞吐量 = （ 1000 / 响应时间ms ) * 并发数</p>
+<h4 id="（2）影响性能因素"><a href="#（2）影响性能因素" class="headerlink" title="（2）影响性能因素"></a>（2）影响性能因素</h4><h5 id="硬盘"><a href="#硬盘" class="headerlink" title="硬盘"></a>硬盘</h5><ul>
+<li>cpu：48核 =》 线程数</li>
+<li>内存：128G</li>
+<li>磁盘IO</li>
+<li>网络</li>
+</ul>
+<h5 id="软件"><a href="#软件" class="headerlink" title="软件"></a>软件</h5><ul>
+<li>数据库<ul>
+<li>内存，CPU计算，磁盘读写</li>
+<li>可以改为使用缓存</li>
+</ul>
+</li>
+<li>锁竞争<ul>
+<li>上下文切换，性能开销</li>
+<li>请求堆积，影响性能</li>
+</ul>
+</li>
+<li>异常：异常抛出需要构建异常栈，捕获和处理，消耗系统性能</li>
+</ul>
+<h4 id="（3）-优化策略"><a href="#（3）-优化策略" class="headerlink" title="（3） 优化策略"></a>（3） 优化策略</h4><ul>
+<li>优化代码：数据结构；设计；算法；空间换时间</li>
+<li>参数调优：JVM，线程池，连接池</li>
+<li>硬盘：合理设置线程数</li>
+<li>软件：缓存，减少锁</li>
+<li>兜底：限流，降级，熔断</li>
+</ul>
+<h4 id="（4）实际"><a href="#（4）实际" class="headerlink" title="（4）实际"></a>（4）实际</h4><h5 id="拉取"><a href="#拉取" class="headerlink" title="拉取"></a>拉取</h5><ul>
+<li>api升级<ul>
+<li>批量拉取，提高并发</li>
+<li>心跳线程，防止频繁rebalance</li>
+<li>批次，批量大小</li>
+<li>offset存在zk，改为，offset存在topic，提高性能</li>
+</ul>
+</li>
+<li>限流：设定限额，根据CTSDB处理能力</li>
+<li>熔断：queue写入失败，熔断器</li>
+</ul>
+<h5 id="处理"><a href="#处理" class="headerlink" title="处理"></a>处理</h5><ul>
+<li>线程分配</li>
+<li>缓存，减少db压力</li>
+</ul>
+<h5 id="缓存"><a href="#缓存" class="headerlink" title="缓存"></a>缓存</h5><ul>
+<li>线程池</li>
+<li>连接池</li>
+</ul>
+<h5 id="计算"><a href="#计算" class="headerlink" title="计算"></a>计算</h5><ul>
+<li>连接池</li>
+<li>去掉加锁，列表拆分</li>
+</ul>
+<h5 id="写入"><a href="#写入" class="headerlink" title="写入"></a>写入</h5><ul>
+<li>批量写入</li>
+<li>一边累计，一边发送，并发度</li>
+<li>限流：令牌桶</li>
+</ul>
+<h5 id="其他"><a href="#其他" class="headerlink" title="其他"></a>其他</h5><ul>
+<li>令牌桶，限流</li>
+<li>超过，考虑增加熔断器，蓄水池等等</li>
+</ul>
+]]></content>
+      <categories>
+        <category>答辩</category>
+        <category>模调</category>
+      </categories>
+      <tags>
+        <tag>trace</tag>
       </tags>
   </entry>
 </search>
