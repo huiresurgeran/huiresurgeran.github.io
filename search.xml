@@ -249,7 +249,8 @@
 <li>日志无法长期保存（下线清理）</li>
 <li>不支持高并发查询（qps 100，单次查询利用所有资源）</li>
 </ul>
-<h2 id="5-es：全文索引"><a href="#5-es：全文索引" class="headerlink" title="5. es：全文索引"></a>5. es：全文索引</h2><h3 id="（1）mongodb"><a href="#（1）mongodb" class="headerlink" title="（1）mongodb"></a>（1）mongodb</h3><ul>
+<h2 id="5-es：全文索引"><a href="#5-es：全文索引" class="headerlink" title="5. es：全文索引"></a>5. es：全文索引</h2><p>综合首选：查询 + 删改 + 聚合 + 运维 + 可视化kibana + 监控monitor + 安全管理</p>
+<h3 id="（1）mongodb"><a href="#（1）mongodb" class="headerlink" title="（1）mongodb"></a>（1）mongodb</h3><ul>
 <li>文档查询性能：倒排索引/KDB-Tree比B+树厉害</li>
 <li>聚合分析能力：ES提供doc-value，比mongodb行式快</li>
 <li>分布式（集群分片副本）：ES自动 &gt; mongodb手动</li>
@@ -884,15 +885,215 @@
       </tags>
   </entry>
   <entry>
-    <title>容灾</title>
+    <title>容灾和数据一致性</title>
     <url>/2021/11/10/%E5%AE%B9%E7%81%BE/</url>
-    <content><![CDATA[<p>集群/set化作用</p>
+    <content><![CDATA[<h2 id="1-成果"><a href="#1-成果" class="headerlink" title="1. 成果"></a>1. 成果</h2><h3 id="（1）服务部署层面"><a href="#（1）服务部署层面" class="headerlink" title="（1）服务部署层面"></a>（1）服务部署层面</h3><p>服务的多活部署，拥有容灾能力</p>
+<h3 id="（2）低成本容灾"><a href="#（2）低成本容灾" class="headerlink" title="（2）低成本容灾"></a>（2）低成本容灾</h3><p>ng/svr多园区部署<br>L5剔除<br>单机故障演戏</p>
+<h3 id="（3）高成本的未做"><a href="#（3）高成本的未做" class="headerlink" title="（3）高成本的未做"></a>（3）高成本的未做</h3><p>CTSDB/CKV+，外部门，演戏成本高</p>
+<h3 id="（4）无上海机房"><a href="#（4）无上海机房" class="headerlink" title="（4）无上海机房"></a>（4）无上海机房</h3><p>中心设备分布决定<br>满足了深圳多园区的容灾要求</p>
+<h3 id="（5）FMHA"><a href="#（5）FMHA" class="headerlink" title="（5）FMHA"></a>（5）FMHA</h3><p>只存储配置相关的数据，要求不高</p>
+<h3 id="（6）CTSDB-CKV"><a href="#（6）CTSDB-CKV" class="headerlink" title="（6）CTSDB/CKV+"></a>（6）CTSDB/CKV+</h3><p>多园区容灾部署<br>成本考虑</p>
+<h2 id="2-域名解析"><a href="#2-域名解析" class="headerlink" title="2. 域名解析"></a>2. 域名解析</h2><p>DNS解析服务：机器故障，5min剔除，慢</p>
+<h2 id="3-TGW"><a href="#3-TGW" class="headerlink" title="3. TGW"></a>3. TGW</h2><h3 id="（1）自己"><a href="#（1）自己" class="headerlink" title="（1）自己"></a>（1）自己</h3><p>一个集群4台TGW，每台TGW与其他三台TGW实时同步会话信息</p>
+<h3 id="（2）下游服务"><a href="#（2）下游服务" class="headerlink" title="（2）下游服务"></a>（2）下游服务</h3><p>周期性探测server的状态，1min<br>从客服务列表中剔除故障server<br>检测服务恢复正常，自动加回可服务列表</p>
+<h2 id="4-智能网关"><a href="#4-智能网关" class="headerlink" title="4. 智能网关"></a>4. 智能网关</h2><p>多集群部署</p>
+<h3 id="（1）容灾"><a href="#（1）容灾" class="headerlink" title="（1）容灾"></a>（1）容灾</h3><h4 id="自己"><a href="#自己" class="headerlink" title="自己"></a>自己</h4><p>多园区部署<br>深圳主集群，天津灾备</p>
+<h4 id="下游服务"><a href="#下游服务" class="headerlink" title="下游服务"></a>下游服务</h4><ul>
+<li>心跳检测机制</li>
+<li>同一个进程，三次发送到同一个IP的请求均连接失败，就踢掉该IP，请求不会发送到故障服务器</li>
+<li>智能路由转发</li>
+</ul>
+<h3 id="（2）其他功能"><a href="#（2）其他功能" class="headerlink" title="（2）其他功能"></a>（2）其他功能</h3><ul>
+<li>TOF统一身份认证</li>
+<li>鉴权，员工身份信息</li>
+<li>共享登录态</li>
+<li>智能路由转发</li>
+</ul>
+<h2 id="5-nginx"><a href="#5-nginx" class="headerlink" title="5. nginx"></a>5. nginx</h2><p>两地四中心 + 智能网关心跳检测</p>
+<h3 id="（1）上游"><a href="#（1）上游" class="headerlink" title="（1）上游"></a>（1）上游</h3><p>智能网关</p>
+<h3 id="（2）自己"><a href="#（2）自己" class="headerlink" title="（2）自己"></a>（2）自己</h3><p>多园区部署，多城市部署</p>
+<h3 id="（3）下游"><a href="#（3）下游" class="headerlink" title="（3）下游"></a>（3）下游</h3><ul>
+<li>异常重试：4次，服务器列表根据权重轮询</li>
+<li>停止重试：请求时间60S/重试次数4次</li>
+<li>踢掉策略：超时2s，认为失败，踢掉</li>
+<li>恢复策略：屏蔽10s，重新加入存活服务器列表</li>
+</ul>
+<h2 id="6-权限系统"><a href="#6-权限系统" class="headerlink" title="6. 权限系统"></a>6. 权限系统</h2><p>降级登录（探测OA，302次数超过阈值）<br>智能网关开启免登陆</p>
+<h2 id="7-北极星"><a href="#7-北极星" class="headerlink" title="7. 北极星"></a>7. 北极星</h2><h2 id="8-L5"><a href="#8-L5" class="headerlink" title="8. L5"></a>8. L5</h2><h3 id="（1）容灾-1"><a href="#（1）容灾-1" class="headerlink" title="（1）容灾"></a>（1）容灾</h3><h4 id="自己-1"><a href="#自己-1" class="headerlink" title="自己"></a>自己</h4><p>agent挂了，从文件中读取路由信息</p>
+<h4 id="下游"><a href="#下游" class="headerlink" title="下游"></a>下游</h4><ul>
+<li>故障剔除：连续上报10次失败 / 1min失败&gt;50%</li>
+<li>故障恢复：每10s对网络层探测，ok则逐步放量请求</li>
+</ul>
+<h3 id="（2）其他功能-1"><a href="#（2）其他功能-1" class="headerlink" title="（2）其他功能"></a>（2）其他功能</h3><ul>
+<li>负载均衡：空闲状态</li>
+<li>过载保护：回包状态 =》 一个周期内不给服务提供者分配请求</li>
+<li>路由策略：配置 + 权重 + 轮询</li>
+<li>全部服务过载，降级，一个周期内不再返回可用路由</li>
+</ul>
+<h2 id="9-CL5"><a href="#9-CL5" class="headerlink" title="9. CL5"></a>9. CL5</h2><h3 id="（1）容灾-2"><a href="#（1）容灾-2" class="headerlink" title="（1）容灾"></a>（1）容灾</h3><h4 id="故障剔除"><a href="#故障剔除" class="headerlink" title="故障剔除"></a>故障剔除</h4><p>一个周期内，错误率大于某个阈值，或者连续错误多少次，节点故障</p>
+<h4 id="故障恢复"><a href="#故障恢复" class="headerlink" title="故障恢复"></a>故障恢复</h4><p>ping探测宕机节点<br>连通，放少量流量，后逐渐恢复正常</p>
+<h3 id="（2）其他功能-2"><a href="#（2）其他功能-2" class="headerlink" title="（2）其他功能"></a>（2）其他功能</h3><ul>
+<li>负载均衡：静态权重（配置） + 动态权重（成功率，耗时）</li>
+<li>过载保护：降级</li>
+</ul>
+<h2 id="10-openapi-oms网关"><a href="#10-openapi-oms网关" class="headerlink" title="10. openapi/oms网关"></a>10. openapi/oms网关</h2><p>oms网关：多集群部署 + L5切换<br>openapi：两地四中心 + oms网关全量信息</p>
+<h3 id="（1）网关"><a href="#（1）网关" class="headerlink" title="（1）网关"></a>（1）网关</h3><ul>
+<li>网关集群：L5切换</li>
+<li>网关子服务：<ul>
+<li>每套网关多台服务器</li>
+<li>每个网关机器都有全量子服务信息</li>
+</ul>
+</li>
+</ul>
+<h3 id="（2）服务端"><a href="#（2）服务端" class="headerlink" title="（2）服务端"></a>（2）服务端</h3><ul>
+<li>服务注册<ul>
+<li>保存服务信息到本地</li>
+<li>同步协议，同步服务信息到其他网关机器</li>
+<li>子服务从网关同步到其他子服务</li>
+</ul>
+</li>
+<li>心跳检测<ul>
+<li>网关定时检测子服务心跳，剔除无心跳服务</li>
+<li>子服务定期发送心跳</li>
+</ul>
+</li>
+<li>客户端缓存</li>
+</ul>
+<h2 id="11-日志写入服务"><a href="#11-日志写入服务" class="headerlink" title="11. 日志写入服务"></a>11. 日志写入服务</h2><p>两地两中心 + 消费者组机制</p>
+<p>异常重试：CTSDB<br>容灾：消费者组，rebalance</p>
+<h2 id="12-日志查询服务"><a href="#12-日志查询服务" class="headerlink" title="12. 日志查询服务"></a>12. 日志查询服务</h2><p>两地四中心 + nginx配置（故障剔除）</p>
+<p>异常重试：nginx，4次<br>容灾：</p>
 <ul>
+<li>故障剔除：2s，1次</li>
+<li>故障恢复：10s</li>
+</ul>
+<h2 id="13-CTSDB"><a href="#13-CTSDB" class="headerlink" title="13. CTSDB"></a>13. CTSDB</h2><p>支持多地域部署 + 多副本 + 选举</p>
+<h3 id="（1）容灾-3"><a href="#（1）容灾-3" class="headerlink" title="（1）容灾"></a>（1）容灾</h3><ul>
+<li>集群：多园区容灾</li>
+<li>城市：不同地域相互隔离，多园区</li>
+<li>机房：多可用区部署</li>
+<li>单台机器：<ul>
+<li>master：选举，投票（id排序，Bully算法）</li>
+<li>primary：副本 + 选举<ul>
+<li>动态更新 =》 IS列表 =》 master将服务提升为primary（最新的UUID）</li>
+<li>master复制一个副本，分配在节点</li>
+</ul>
+</li>
+<li>replica：同上</li>
+</ul>
+</li>
+</ul>
+<h3 id="（2）数据一致性"><a href="#（2）数据一致性" class="headerlink" title="（2）数据一致性"></a>（2）数据一致性</h3><ul>
+<li>主副本分片：强一致</li>
+<li>写入，主副本都失败，重试</li>
+<li>写入，主成功，备失败<ul>
+<li>强一致：失败，重试</li>
+<li>非强一致：<ul>
+<li>副本故障，移除in-sync</li>
+<li>不对外提供查询，后续异步恢复</li>
+<li>master分配新的副本</li>
+<li>IS存在集群元信息中，master维护</li>
+<li>写入副本失败，从IS中剔除，动态更新IS列表</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>写入，主备都成功，成功</li>
+</ul>
+<h3 id="（3）返回成功，数据没有flush到磁盘"><a href="#（3）返回成功，数据没有flush到磁盘" class="headerlink" title="（3）返回成功，数据没有flush到磁盘"></a>（3）返回成功，数据没有flush到磁盘</h3><p>translog（日志文件） + commit point</p>
+<h3 id="（4）-全部失败"><a href="#（4）-全部失败" class="headerlink" title="（4） 全部失败"></a>（4） 全部失败</h3><p>备份，快照</p>
+<h2 id="14-FMHA"><a href="#14-FMHA" class="headerlink" title="14. FMHA"></a>14. FMHA</h2><p>一地三中心 + 半同步 + 主备切换 + CTSDB</p>
+<h3 id="（1）容灾-4"><a href="#（1）容灾-4" class="headerlink" title="（1）容灾"></a>（1）容灾</h3><ul>
+<li>跨城：名字服务DNS + agent上报心跳</li>
+<li>跨IDC：权重 + 名字服务DNS + agent上报心跳</li>
+<li>跨机：<ul>
+<li>主从切换，权重 + gtid（Global Transaction Identifier，一个事务对应一个GTID，全局唯一）</li>
+<li>数据同步 + 切换</li>
+<li>半同步复制</li>
+</ul>
+</li>
+</ul>
+<h3 id="（2）数据一致性-1"><a href="#（2）数据一致性-1" class="headerlink" title="（2）数据一致性"></a>（2）数据一致性</h3><p>三园区 + 半同步 + GTID + read_only</p>
+<h3 id="（3）卡主"><a href="#（3）卡主" class="headerlink" title="（3）卡主"></a>（3）卡主</h3><p>关闭：主备切换</p>
+<h2 id="15-TDW"><a href="#15-TDW" class="headerlink" title="15. TDW"></a>15. TDW</h2><p>多园区容灾 + 自动恢复 + 任务迁移</p>
+<h2 id="16-CKV"><a href="#16-CKV" class="headerlink" title="16. CKV+"></a>16. CKV+</h2><p>支持多集群部署 + L5切换 + 分片副本 + 主备切换</p>
+<h3 id="（1）容灾-5"><a href="#（1）容灾-5" class="headerlink" title="（1）容灾"></a>（1）容灾</h3><p>副本 + 选举（默认一主一备）<br>副本：默认跨机架，也可跨城</p>
+<ul>
+<li>客户端L5，自动剔除</li>
+<li>集群，跨IDC部署</li>
+<li>城市，跨城部署</li>
+<li>多机器故障：主备分片同时异常，无法切换<ul>
+<li>设备可恢复：本地快照 + 流水</li>
+<li>设备不可恢复：冷备文件回档（每天至少一次冷备，保存三天）</li>
+</ul>
+</li>
+<li>单机器故障<ul>
+<li>故障检测：master发送心跳，2s间隔，10次四百</li>
+<li>设备异常，不可恢复，分片，30s内完成<ul>
+<li>主分片，主备切换</li>
+<li>备份片，重建</li>
+</ul>
+</li>
+<li>设备异常，可恢复<ul>
+<li>秒级恢复，共享内存</li>
+<li>分片状态正常，无操作</li>
+<li>分片状态修改中，异常<ul>
+<li>主分片：剔除主，主备切换</li>
+<li>备份片：剔除备，新建备</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h3 id="（2）数据一致性-2"><a href="#（2）数据一致性-2" class="headerlink" title="（2）数据一致性"></a>（2）数据一致性</h3><p>异步（默认），强一致（Raft协议，性能损耗大）</p>
+<ul>
+<li>写入<ul>
+<li>主备成功：一致</li>
+<li>主挂了：剔除主，主备切换（数据未同步，丢失）</li>
+<li>备挂了：剔除备，换备</li>
+<li>主备失败：重试</li>
+</ul>
+</li>
+<li>复制中主挂了<ul>
+<li>可恢复：秒级恢复</li>
+<li>不可恢复： 数据丢失</li>
+</ul>
+</li>
+</ul>
+<h3 id="（3）-选举"><a href="#（3）-选举" class="headerlink" title="（3） 选举"></a>（3） 选举</h3><ul>
+<li>master<ul>
+<li>3个节点，不同机房</li>
+<li>创建key，成功则为master</li>
+<li>节点异常，TTL到期，其他Follower抢占</li>
+</ul>
+</li>
+</ul>
+<h2 id="17-kafka"><a href="#17-kafka" class="headerlink" title="17. kafka"></a>17. kafka</h2><p>多集群部署（两地两中心） + 多副本 + 选举</p>
+<h3 id="（1）容灾-6"><a href="#（1）容灾-6" class="headerlink" title="（1）容灾"></a>（1）容灾</h3><p>副本 + 选举</p>
+<ul>
+<li>controller：zk，创建节点</li>
+<li>leader：controller提升副本 + ISR列表（leader维护，zk中也有） + 第一个</li>
+<li>follower：再分配follower</li>
+</ul>
+<h3 id="（2）数据一致性-3"><a href="#（2）数据一致性-3" class="headerlink" title="（2）数据一致性"></a>（2）数据一致性</h3><ul>
+<li>leader失败：重试</li>
+<li>leader成功，fowller失败：异步 + 重试 + ISR</li>
+</ul>
+<h2 id="18-集群-set化作用"><a href="#18-集群-set化作用" class="headerlink" title="18. 集群/set化作用"></a>18. 集群/set化作用</h2><ul>
 <li>流量拆分</li>
 <li>故障隔离</li>
 <li>异地容灾</li>
 </ul>
 ]]></content>
+      <categories>
+        <category>答辩</category>
+        <category>容灾</category>
+      </categories>
+      <tags>
+        <tag>disaster tolerance</tag>
+      </tags>
   </entry>
   <entry>
     <title>应用设计模式</title>
@@ -949,7 +1150,7 @@
 </ul>
 <h4 id="（3）第三段：数字"><a href="#（3）第三段：数字" class="headerlink" title="（3）第三段：数字"></a>（3）第三段：数字</h4><p>顺排，体现统一业务属性的不同细分场景<br>体现CPU，硬盘，内存</p>
 <h4 id="（4）第四段：字母"><a href="#（4）第四段：字母" class="headerlink" title="（4）第四段：字母"></a>（4）第四段：字母</h4><p>非必选，机型小属性，比如液冷用L</p>
-<h4 id="（5）第五段：网卡速率"><a href="#（5）第五段：网卡速率" class="headerlink" title="（5）第五段：网卡速率"></a>（5）第五段：网卡速率</h4><h2 id="所有机型对比"><a href="#所有机型对比" class="headerlink" title="所有机型对比"></a>所有机型对比</h2><table>
+<h4 id="（5）第五段：网卡速率"><a href="#（5）第五段：网卡速率" class="headerlink" title="（5）第五段：网卡速率"></a>（5）第五段：网卡速率</h4><h2 id="7-所有机型对比"><a href="#7-所有机型对比" class="headerlink" title="7. 所有机型对比"></a>7. 所有机型对比</h2><table>
 <thead>
 <tr>
 <th>名称</th>
@@ -1300,6 +1501,13 @@
 <p>A5 -&gt; Z3/Z4<br>A5 -&gt; TS8/TS80</p>
 <p>T5：存储大，性能中<br>T6：存储大，性能高</p>
 <p>TS5合并到TS6<br>TS8合并到Z3/Z4</p>
+<h2 id="8-其他"><a href="#8-其他" class="headerlink" title="8. 其他"></a>8. 其他</h2><p>SSD/机械硬盘</p>
+<ul>
+<li>体积小</li>
+<li>读写快（3-16倍）</li>
+<li>寿命短（擦出写入）</li>
+<li>价格贵</li>
+</ul>
 ]]></content>
       <categories>
         <category>答辩</category>
@@ -1579,6 +1787,326 @@
       </categories>
       <tags>
         <tag>trace</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>ctsdb</title>
+    <url>/2021/11/11/ctsdb/</url>
+    <content><![CDATA[]]></content>
+      <categories>
+        <category>答辩</category>
+        <category>大数据</category>
+      </categories>
+      <tags>
+        <tag>ctsdb</tag>
+        <tag>big-data</tag>
+        <tag>es</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>数据处理说明</title>
+    <url>/2021/11/11/data-delay/</url>
+    <content><![CDATA[<p>数据处理延迟：2min<br>理由：</p>
+<ul>
+<li>1min，数据累计时间（99%）</li>
+<li>1min，数据延迟buffer（30s重启）</li>
+<li>业务可接受</li>
+</ul>
+<p>保留10min内的数据，去做数据计算<br>    - 若延迟难以恢复，直接写入CTSDB，不经过ckv+<br>    - 控制数据丢失情况，2-10min<br>    - 考虑到需要重启</p>
+]]></content>
+      <categories>
+        <category>答辩</category>
+        <category>模调</category>
+      </categories>
+      <tags>
+        <tag>trace</tag>
+        <tag>data</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>kafka</title>
+    <url>/2021/11/11/kafka/</url>
+    <content><![CDATA[<p>为什么选择kafka<br>和RabbitMQ，RocketMQ，FMQ等等相比</p>
+<h3 id="（1）-kafka吞吐高"><a href="#（1）-kafka吞吐高" class="headerlink" title="（1） kafka吞吐高"></a>（1） kafka吞吐高</h3><p>比RabbitMQ高出1-2个数量级</p>
+<ul>
+<li>kafka QPS：百万级</li>
+<li>RabbitMQ QPS：万级</li>
+<li>RocketMQ TPS：7万条/S，阿里</li>
+</ul>
+<h3 id="（2）-数据可靠性"><a href="#（2）-数据可靠性" class="headerlink" title="（2） 数据可靠性"></a>（2） 数据可靠性</h3><p>kafka：多副本，高<br>RabbitMQ：多副本，高<br>RocketMQ：异步实时刷盘/同步刷盘</p>
+<h3 id="（3）-服务可用性"><a href="#（3）-服务可用性" class="headerlink" title="（3） 服务可用性"></a>（3） 服务可用性</h3><p>均有</p>
+<h3 id="（4）-功能"><a href="#（4）-功能" class="headerlink" title="（4） 功能"></a>（4） 功能</h3><p>kafka：适合海量数据收集，适合高吞吐<br>RabbitMQ：支持更多消息队列功能，适合数据一致性，稳定性，高可靠<br>RocketMQ：阿里，交易场景</p>
+<h3 id="（5）-FMQ（2018）"><a href="#（5）-FMQ（2018）" class="headerlink" title="（5） FMQ（2018）"></a>（5） FMQ（2018）</h3><p>适合消息异步订阅，消息队列，一致性，可靠性<br>而不是日志海量存储，高吞吐</p>
+<p>zk性能<br>tps：1W+ / s，弱</p>
+]]></content>
+      <categories>
+        <category>答辩</category>
+        <category>大数据</category>
+      </categories>
+      <tags>
+        <tag>big-data</tag>
+        <tag>kafka</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>模调系统配置</title>
+    <url>/2021/11/11/%E6%A8%A1%E8%B0%83%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1/</url>
+    <content><![CDATA[<h2 id="1-kafka"><a href="#1-kafka" class="headerlink" title="1. kafka"></a>1. kafka</h2><h3 id="（1）副本数"><a href="#（1）副本数" class="headerlink" title="（1）副本数"></a>（1）副本数</h3><p>3</p>
+<h3 id="（2）分片"><a href="#（2）分片" class="headerlink" title="（2）分片"></a>（2）分片</h3><p>16</p>
+<h3 id="（3）集群"><a href="#（3）集群" class="headerlink" title="（3）集群"></a>（3）集群</h3><ul>
+<li>深圳<ul>
+<li>机型：kafka M10，zk M10</li>
+<li>机房：kafka JX，zk JX</li>
+<li>集群大小：16台</li>
+<li>域内域外：域外</li>
+</ul>
+</li>
+<li>上海<ul>
+<li>机型：kafka M10，zk M10</li>
+<li>机房：kafka QP，zk QP</li>
+<li>集群大小：16台</li>
+<li>域内域外：域外</li>
+</ul>
+</li>
+<li>深圳通用<ul>
+<li>机型：TS60</li>
+<li>机房：GM</li>
+<li>集群大小：</li>
+<li>域内域外：域外</li>
+<li>其他：无量</li>
+</ul>
+</li>
+<li>上海通用<ul>
+<li>机型：TS60</li>
+<li>机房：QP</li>
+<li>集群大小：</li>
+<li>域内域外：域外</li>
+<li>其他：少量测试日志</li>
+</ul>
+</li>
+</ul>
+<h3 id="（4）ACK"><a href="#（4）ACK" class="headerlink" title="（4）ACK"></a>（4）ACK</h3><p>1，leader返回ack，不等待其他broker</p>
+<h3 id="（5）lag-time"><a href="#（5）lag-time" class="headerlink" title="（5）lag time"></a>（5）lag time</h3><p>10s</p>
+<h3 id="（6）同步数据时间"><a href="#（6）同步数据时间" class="headerlink" title="（6）同步数据时间"></a>（6）同步数据时间</h3><p>2s</p>
+<h3 id="（7）监控"><a href="#（7）监控" class="headerlink" title="（7）监控"></a>（7）监控</h3><p>kafka manager</p>
+<h3 id="（8）M10"><a href="#（8）M10" class="headerlink" title="（8）M10"></a>（8）M10</h3><p>2个12核的CPU<br>128G内存<br>300G磁盘（300*6 = 1800）<br>超线程 2 * 12 * 2 = 48核<br>计算类，实体机<br>网络类型，万兆</p>
+<h2 id="2-CTSDB"><a href="#2-CTSDB" class="headerlink" title="2. CTSDB"></a>2. CTSDB</h2><ul>
+<li>集群大小：24节点</li>
+<li>机型：Y0-MI52-25G</li>
+<li>机房：广州四区</li>
+<li>机器配置：8核，40GB内存，2T存储</li>
+<li>压测性能：96线程 + 60字段 + 并发5000，13W/s</li>
+<li>副本：3副本</li>
+<li>磁盘使用率：80%</li>
+<li>分片分配权重：0.45f，0.55f，1.0</li>
+<li>数据一致性：强一致</li>
+<li>5000条，10M，10s，并行度1，重试3次，指数型，1s间隔</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>处理</th>
+<th>上报</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>平均/天</td>
+<td>80亿</td>
+<td>66亿，1.5T</td>
+</tr>
+<tr>
+<td>平均/h</td>
+<td>3.3亿</td>
+<td>2.75亿</td>
+</tr>
+<tr>
+<td>平均/min</td>
+<td>556万</td>
+<td>458万</td>
+</tr>
+<tr>
+<td>平均/s</td>
+<td>9.26万</td>
+<td>7.64万</td>
+</tr>
+<tr>
+<td>峰值/min</td>
+<td>800万</td>
+<td>600万</td>
+</tr>
+<tr>
+<td>峰值/s</td>
+<td>13.3万</td>
+<td>10万</td>
+</tr>
+</tbody></table>
+<p>压测数据</p>
+<ul>
+<li>60字段</li>
+<li>5000条数据一个批次</li>
+<li>96并发线程</li>
+<li>12.7W/s</li>
+<li>0.28K/条数据</li>
+</ul>
+<h2 id="3-CKV"><a href="#3-CKV" class="headerlink" title="3. CKV+"></a>3. CKV+</h2><ul>
+<li>版本：主从版<ul>
+<li>主从：所有数据在同一台设备（不包含备份），适合业务数据量少的，命令更多</li>
+<li>集群：将数据散列到多台设备，适合业务增长快，体量大的</li>
+</ul>
+</li>
+<li>机房：JX + GM</li>
+<li>副本：一主一备，每台机器一个分片</li>
+<li>容量：70G</li>
+<li>机型：B70 + CG3-10g<ul>
+<li>万兆为主：M10，B70，CG1-10g</li>
+<li>不推荐使用虚拟机，影响性能</li>
+</ul>
+</li>
+<li>数据同步：异步</li>
+<li>机器配置<ul>
+<li>2w连接数</li>
+<li>单机2048连接数，最大空闲200</li>
+</ul>
+</li>
+</ul>
+<h2 id="4-FMHA"><a href="#4-FMHA" class="headerlink" title="4. FMHA"></a>4. FMHA</h2><ul>
+<li>集群大小：4台，一主三从</li>
+<li>机房：SZ-JX，2台；LJ，1台；GM，1台</li>
+<li>卡主修复：关闭</li>
+<li>机型：Z4</li>
+<li>复制类型：同步/半同步</li>
+<li>容灾：强容灾</li>
+<li>卡主阈值：24s</li>
+<li>域内域外：域内</li>
+<li>机器配置<ul>
+<li>64GB内存</li>
+<li>300 * 2 = 600，300GB磁盘</li>
+<li>Z4，用于给财付通存储数据</li>
+</ul>
+</li>
+</ul>
+<h2 id="5-nginx"><a href="#5-nginx" class="headerlink" title="5. nginx"></a>5. nginx</h2><ul>
+<li>集群大小：5</li>
+<li>机房：SZ-GM，1台；SZ-JX，2台；SH-BX，1台；SH-QP，1台</li>
+<li>机型：V6-15-100</li>
+<li>故障：重试4次，2s剔除，10s恢复</li>
+<li>域内域外：域外</li>
+<li>机器配置<ul>
+<li>一个6核cpu</li>
+<li>14.4GB内存</li>
+<li>140GB磁盘</li>
+<li>网络类型，千兆</li>
+<li>虚拟机</li>
+</ul>
+</li>
+</ul>
+<h2 id="6-server"><a href="#6-server" class="headerlink" title="6. server"></a>6. server</h2><ul>
+<li>集群大小：4</li>
+<li>机房：SZ-GM，2台；SZ-JX，2台</li>
+<li>机型：B6</li>
+<li>故障</li>
+<li>域内域外：域内</li>
+<li>机器配置<ul>
+<li>2个6核cpu</li>
+<li>64GB内存</li>
+<li>300GB硬盘</li>
+<li>适合中间层</li>
+<li>网络类型，千兆</li>
+<li>超线程，2<em>6</em>2 = 24核</li>
+</ul>
+</li>
+</ul>
+<h2 id="7-log-server"><a href="#7-log-server" class="headerlink" title="7. log server"></a>7. log server</h2><ul>
+<li>集群配置：6</li>
+<li>机房：SZ-GM，3台；SZ-JX，3台</li>
+<li>机型：B70</li>
+<li>域内域外：域外</li>
+<li>机器配置<ul>
+<li>2个12核CPU</li>
+<li>128G内存</li>
+<li>300G磁盘</li>
+<li>超线程，2<em>12</em>2 = 48核</li>
+<li>网络，万兆</li>
+</ul>
+</li>
+<li>CTSDB<ul>
+<li>90线程/6台 = 15线程/台</li>
+<li>Queue大小</li>
+</ul>
+</li>
+<li>Processor篇日志<ul>
+<li>高峰10W/s，25条/msgno =》 4000msgno/s</li>
+<li>时耗：拉取2-5ms + 处理10ms =》 15ms</li>
+<li>一个线程每秒处理多少个msgno：1000/15 = 67个</li>
+<li>4000/67 = 60个线程，60/6=10 线程/台</li>
+</ul>
+</li>
+<li>Cacher配置<ul>
+<li>70G大小，控制在30G左右，1.12亿数据量</li>
+<li>高峰期10-12W/s，每条写入时间1-2ms，每秒写入500-1000条数据</li>
+<li>12W/500=240线程，10W/1000=100线程</li>
+<li>6台服务器，240/6=40线程，100/6=17线程</li>
+<li>50核心线程，50最大，50队列</li>
+</ul>
+</li>
+<li>kafka<ul>
+<li>拉取<ul>
+<li>自动提交：关闭，同步手动提交</li>
+<li>最大获取大小：0.5M =》 2M</li>
+<li>拉取批量大小：5000</li>
+<li>session超时：10000ms</li>
+<li>心跳上报间隔：1000ms = 1s</li>
+<li>offset获取：earliest</li>
+<li>写入Queue间隔：5000ms = 5s</li>
+<li>拉取数据线程数：2（运营平台） / 5（计算）</li>
+<li>载入配额：60000</li>
+<li>失败重试，加载延迟：1000ms</li>
+</ul>
+</li>
+<li>处理<ul>
+<li>处理线程数：32（运营） =》 30</li>
+<li>写入Queue间隔：60000ms = 60s</li>
+<li>批次大小：3000 =》 5000</li>
+<li>Queue长度：32 =》 30</li>
+</ul>
+</li>
+<li>写入<ul>
+<li>限速开关：打开</li>
+<li>写入es集群间隔：60000ms = 60s</li>
+<li>写入es批次：3000 =》 5000</li>
+<li>写入线程数：8 =》 15</li>
+<li>限速：20000/s =》 5000/s</li>
+<li>重试次数：3次 =》 丢失</li>
+<li>Queue长度：32 =》 30</li>
+</ul>
+</li>
+<li>限速处理（蓄水池，熔断）<ul>
+<li>熔断，失败率：80%</li>
+<li>打开 -》 半打开，等待时间：300s</li>
+<li>关闭状态下RF大小：500</li>
+<li>半打开状态小RF大小：20</li>
+<li>写入失败，sleep，重试，大于5次，丢失</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>BlockingQueue<ul>
+<li>12.7W/s，字段多，考虑减少</li>
+<li>副本，强一致</li>
+<li>5000/线程</li>
+<li>使用RateLimiter</li>
+</ul>
+</li>
+</ul>
+]]></content>
+      <categories>
+        <category>答辩</category>
+        <category>模调</category>
+      </categories>
+      <tags>
+        <tag>trace</tag>
+        <tag>config</tag>
       </tags>
   </entry>
 </search>
