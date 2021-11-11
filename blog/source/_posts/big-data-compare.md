@@ -80,6 +80,7 @@ categories:
 
 ## 5. es：全文索引
 
+综合首选：查询 + 删改 + 聚合 + 运维 + 可视化kibana + 监控monitor + 安全管理
 
 ### （1）mongodb
 - 文档查询性能：倒排索引/KDB-Tree比B+树厉害
