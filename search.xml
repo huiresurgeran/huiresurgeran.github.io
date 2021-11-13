@@ -1791,8 +1791,232 @@
   </entry>
   <entry>
     <title>ctsdb</title>
-    <url>/2021/11/11/ctsdb/</url>
-    <content><![CDATA[]]></content>
+    <url>/2021/11/13/ctsdb/</url>
+    <content><![CDATA[<h2 id="1-集群"><a href="#1-集群" class="headerlink" title="1. 集群"></a>1. 集群</h2><p>相同的集群名称 + 同网关下的机器，组成同一个集群<br>集群规模限制：集群状态信息，越大更新越慢，所以不能无限制的增大集群</p>
+<h2 id="2-节点"><a href="#2-节点" class="headerlink" title="2. 节点"></a>2. 节点</h2><ul>
+<li>master节点<ul>
+<li>功能：<ul>
+<li>选举</li>
+<li>维护集群状态，分片分配等</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>data node</li>
+<li>coordinating node</li>
+</ul>
+<h2 id="3-索引"><a href="#3-索引" class="headerlink" title="3. 索引"></a>3. 索引</h2><h3 id="（1）-拆分优点"><a href="#（1）-拆分优点" class="headerlink" title="（1） 拆分优点"></a>（1） 拆分优点</h3><ul>
+<li>减少索引之间的相互影响：配置变更，不影响其他</li>
+<li>分片数设置，与数据量达到平衡<ul>
+<li>分片太多，拆成字写入/查询，拒绝率上升</li>
+<li>分片太多，分段小，合并开销增加，小segment降低查询效率</li>
+<li>分片太少，单个分片太大，数据倾斜，机器故障</li>
+<li>分片太少，单个分片太大，需要过滤的数据增加</li>
+</ul>
+</li>
+<li>自定义配置，适应不同的业务需求</li>
+</ul>
+<h3 id="（2）-拆分配置"><a href="#（2）-拆分配置" class="headerlink" title="（2） 拆分配置"></a>（2） 拆分配置</h3><ul>
+<li>数据量较小的：3-5个分片，每个分片&lt;100G，2副本</li>
+<li>数据量较大的：20-50G/分片，不超过50个分片</li>
+</ul>
+<h2 id="4-分片"><a href="#4-分片" class="headerlink" title="4. 分片"></a>4. 分片</h2><h3 id="（1）-作用"><a href="#（1）-作用" class="headerlink" title="（1） 作用"></a>（1） 作用</h3><ul>
+<li>负载均衡</li>
+<li>备份恢复迅速</li>
+<li>分布式存储扩展，可伸缩性</li>
+<li>提高查询并行度，提升读写性能</li>
+</ul>
+<h3 id="（2）-分配分片"><a href="#（2）-分配分片" class="headerlink" title="（2） 分配分片"></a>（2） 分配分片</h3><p>allocator（权重） + decider（配置规则）</p>
+<ul>
+<li>新建的索引：先主分片再副本分片<ul>
+<li>找到权重最低的节点列表（分片数量最少的机器），递增排序（allocator）</li>
+<li>一次遍历节点列表，判断是否需要分配（decider）</li>
+</ul>
+</li>
+<li>rebalance超过阈值<ul>
+<li>最不均衡索引，最先处理</li>
+<li>比较不同节点上分片的权重，确定重新分片是否能改善</li>
+</ul>
+</li>
+<li>权重计算<ul>
+<li>分片weight：节点总分片 - 节点平均分片</li>
+<li>索引weight：索引在节点上的分片 - 索引在节点上的平均分片</li>
+<li>weight = 分片权重 * 分片weight + 索引权重 * 索引weight</li>
+</ul>
+</li>
+<li>配置规则<ul>
+<li>节点分片数限制 — 负载均衡</li>
+<li>相同分片不在同一个节点 — 负载均衡</li>
+<li>rebalance并发数 — 并发数量规范</li>
+<li>recoverage并发数 — 并发数量规范</li>
+<li>include/exclude配置 — 条件限制规则</li>
+<li>磁盘空间阈值（最低，最高） — 条件限制规则</li>
+</ul>
+</li>
+<li>rebalance触发<ul>
+<li>weight &gt;= balance.threshold = 1.0</li>
+</ul>
+</li>
+</ul>
+<h3 id="3-文档写入哪个分片"><a href="#3-文档写入哪个分片" class="headerlink" title="(3) 文档写入哪个分片"></a>(3) 文档写入哪个分片</h3><p>routing（默认为id）<br>shard = hash（rounting） % number_of_primary_shards</p>
+<h3 id="4-查询分片"><a href="#4-查询分片" class="headerlink" title="(4) 查询分片"></a>(4) 查询分片</h3><p>routing 或者是 过滤所有分片</p>
+<h2 id="5-副本"><a href="#5-副本" class="headerlink" title="5. 副本"></a>5. 副本</h2><h3 id="（1）-作用-1"><a href="#（1）-作用-1" class="headerlink" title="（1） 作用"></a>（1） 作用</h3><ul>
+<li>提高查询吞吐量，并发查询</li>
+<li>高可用：保证数据完整性；节点异常恢复，副本分片提升为主分片</li>
+<li>防止单点故障：主副本分片不能再同一个节点</li>
+<li>容错：副本分片提升为主分片</li>
+</ul>
+<h3 id="（2）-IN-SYNC列表"><a href="#（2）-IN-SYNC列表" class="headerlink" title="（2） IN-SYNC列表"></a>（2） IN-SYNC列表</h3><ul>
+<li>ES主节点维护，可供的分片副本列表</li>
+<li>primary挂掉了，master从in-sync中选一个replica</li>
+</ul>
+<h3 id="（3）-数据一致性"><a href="#（3）-数据一致性" class="headerlink" title="（3） 数据一致性"></a>（3） 数据一致性</h3><ul>
+<li>主/副写入成功：最终一致性，refresh前，短暂不一致</li>
+<li>主写入失败：失败重试</li>
+<li>备写入失败<ul>
+<li>强一致：重试</li>
+<li>非强一致：<ul>
+<li>副本标记为不可用，不对外提供查询，后续恢复写入</li>
+<li>更新节点信息前，短暂不一致</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>主副本写入成功，还未写入磁盘flush（1min）：translog + check point</li>
+</ul>
+<h3 id="（4）-数据恢复"><a href="#（4）-数据恢复" class="headerlink" title="（4） 数据恢复"></a>（4） 数据恢复</h3><p>translog + 数据备份</p>
+<ul>
+<li>recovery：translog<ul>
+<li>主分片：translog</li>
+<li>副分片：从主分片中拉取lucene分段（可跳过）和translog</li>
+</ul>
+</li>
+<li>数据备份：HDFS</li>
+</ul>
+<h3 id="（5）-容错"><a href="#（5）-容错" class="headerlink" title="（5） 容错"></a>（5） 容错</h3><ul>
+<li>master node宕机：自动master选举</li>
+<li>replica容错<ul>
+<li>master将replica提升为primary</li>
+<li>master复制缺失的relica到节点上</li>
+</ul>
+</li>
+</ul>
+<h2 id="6，-选举"><a href="#6，-选举" class="headerlink" title="6， 选举"></a>6， 选举</h2><h3 id="（1）-master"><a href="#（1）-master" class="headerlink" title="（1） master"></a>（1） master</h3><ul>
+<li>activeMaster列表：ping，过滤不通的，排除本地ip</li>
+<li>Bully算法：参选人数过半 + 投票人数过半 + 优先级<ul>
+<li>优先级：版本号 + id<ul>
+<li>版本号越高，优先级越高</li>
+<li>id越小，优先级越高</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>masterCandidate：配置<ul>
+<li>集群状态版本编号 + 节点id</li>
+</ul>
+</li>
+<li>探测到节点离开，若当前节点数不过半，则放弃master身份，重新加入集群，防止脑裂</li>
+</ul>
+<h3 id="（2）-集群元信息"><a href="#（2）-集群元信息" class="headerlink" title="（2） 集群元信息"></a>（2） 集群元信息</h3><ul>
+<li>各节点上报元信息，根据版本号确定最新的元信息</li>
+<li>参与选举的元信息要过关，master发布也要过半</li>
+</ul>
+<h3 id="（3）-主分片primary"><a href="#（3）-主分片primary" class="headerlink" title="（3） 主分片primary"></a>（3） 主分片primary</h3><p>master操作，选择集群元信息中“最新主分片列表”的最新分片（根据UUID）</p>
+<h3 id="（4）-副本repllica"><a href="#（4）-副本repllica" class="headerlink" title="（4） 副本repllica"></a>（4） 副本repllica</h3><h2 id="7-Recovery"><a href="#7-Recovery" class="headerlink" title="7. Recovery"></a>7. Recovery</h2><h3 id="（1）-index-recovery"><a href="#（1）-index-recovery" class="headerlink" title="（1） index recovery"></a>（1） index recovery</h3><ul>
+<li>分片分配成功后进入recovery</li>
+<li>用于恢复数据<ul>
+<li>主分片，数据未刷盘</li>
+<li>副分片，数据未刷盘/副本未同步主</li>
+</ul>
+</li>
+</ul>
+<h3 id="（2）-主分片Recovery"><a href="#（2）-主分片Recovery" class="headerlink" title="（2） 主分片Recovery"></a>（2） 主分片Recovery</h3><p>重放translog</p>
+<h3 id="（3）-副分片Recovery"><a href="#（3）-副分片Recovery" class="headerlink" title="（3） 副分片Recovery"></a>（3） 副分片Recovery</h3><ul>
+<li>等主分片恢复之后再操作</li>
+<li>恢复期间允许索引操作</li>
+<li>数据一致性：版本号</li>
+</ul>
+<h2 id="8-集群数据"><a href="#8-集群数据" class="headerlink" title="8. 集群数据"></a>8. 集群数据</h2><h3 id="（1）-正排索引"><a href="#（1）-正排索引" class="headerlink" title="（1） 正排索引"></a>（1） 正排索引</h3><ul>
+<li>优点：易维护</li>
+<li>缺点：搜索代价大，耗时大</li>
+<li>结构：id - 数据</li>
+<li>作用：排序/聚合</li>
+</ul>
+<h3 id="（2）-倒排索引"><a href="#（2）-倒排索引" class="headerlink" title="（2） 倒排索引"></a>（2） 倒排索引</h3><ul>
+<li>优点：搜索快</li>
+<li>缺点：难维护</li>
+<li>结构：term index - term dictionary - id list</li>
+<li>作用：查询</li>
+</ul>
+<h3 id="（3）-doc-value"><a href="#（3）-doc-value" class="headerlink" title="（3） doc value"></a>（3） doc value</h3><ul>
+<li>特点：序列化到磁盘，不支持analyzed</li>
+<li>作用：排序，聚合</li>
+</ul>
+<h3 id="（4）-field-data"><a href="#（4）-field-data" class="headerlink" title="（4） field data"></a>（4） field data</h3><ul>
+<li>特点：放在内存，JVM内存堆，支持analyzed</li>
+<li>作用：排序，聚合</li>
+</ul>
+<h2 id="9-segment"><a href="#9-segment" class="headerlink" title="9. segment"></a>9. segment</h2><p>每个分片有多个segment，每个segment占用内存，文件句柄，文件</p>
+<h3 id="（1）-refresh"><a href="#（1）-refresh" class="headerlink" title="（1） refresh"></a>（1） refresh</h3><p>index buffer -&gt; file system cache<br>1s/1次 -&gt; 10s/次</p>
+<h3 id="（2）-flush"><a href="#（2）-flush" class="headerlink" title="（2） flush"></a>（2） flush</h3><p>file system -&gt; disk<br>30min/次，translog限制</p>
+<h3 id="（3）-影响"><a href="#（3）-影响" class="headerlink" title="（3） 影响"></a>（3） 影响</h3><ul>
+<li>内存：每个segment的cache内存，随着gc不会释放掉，过大过多的segment会导致系统运行没有内存，查询超时</li>
+<li>数据查询：查询遍历每个segment，过多的segment导致查询速度变慢</li>
+</ul>
+<h3 id="（4）-优化措施：释放cache"><a href="#（4）-优化措施：释放cache" class="headerlink" title="（4） 优化措施：释放cache"></a>（4） 优化措施：释放cache</h3><ul>
+<li>删除索引</li>
+<li>force merge</li>
+<li>关闭索引：文件在磁盘，释放内存</li>
+</ul>
+<h2 id="10-写入"><a href="#10-写入" class="headerlink" title="10. 写入"></a>10. 写入</h2><p>doc -&gt; translog<br>            -&gt; disk (flush, 大小 &gt; 512M)<br>    -&gt; index buffer<br>            -&gt; file system cache (refresh, 1s/次)<br>                        -&gt; disk (flush, 30min/次)</p>
+<ul>
+<li>refresh<ul>
+<li>open，可以被搜索</li>
+<li>记录commit point</li>
+</ul>
+</li>
+<li>flush<ul>
+<li>持久化，删除translog</li>
+<li>记录commit point到磁盘</li>
+</ul>
+</li>
+</ul>
+<h2 id="11-查询-检索"><a href="#11-查询-检索" class="headerlink" title="11. 查询/检索"></a>11. 查询/检索</h2><p>query then fetch<br>拆分到每一个分片：主/副本分片，随机轮询</p>
+<h2 id="12-故障处理"><a href="#12-故障处理" class="headerlink" title="12. 故障处理"></a>12. 故障处理</h2><p>副本 + primary选举</p>
+<h3 id="（1）-master-1"><a href="#（1）-master-1" class="headerlink" title="（1） master"></a>（1） master</h3><p>重新选举，Bully，投票</p>
+<h3 id="（2）-primary"><a href="#（2）-primary" class="headerlink" title="（2） primary"></a>（2） primary</h3><p>master将In-sync列表中的Replica提升为primary<br>主分片选举，集群元信息记录的“最新主分片列表“（UUID）<br>数据恢复：translog</p>
+<h3 id="（3）-replica"><a href="#（3）-replica" class="headerlink" title="（3） replica"></a>（3） replica</h3><p>master将这个node从In-sync中移除，在其他node启动shard<br>数据恢复：同步primary，primary segment + translog</p>
+<h3 id="（4）-全部异常"><a href="#（4）-全部异常" class="headerlink" title="（4） 全部异常"></a>（4） 全部异常</h3><p>translog + 数据备份</p>
+<h3 id="（5）-切换过程"><a href="#（5）-切换过程" class="headerlink" title="（5） 切换过程"></a>（5） 切换过程</h3><p>无感知，影响查询写入性能（重新分配分片，分片切换）</p>
+<h2 id="13-查询分页方式"><a href="#13-查询分页方式" class="headerlink" title="13. 查询分页方式"></a>13. 查询分页方式</h2><h3 id="（1）-from-size"><a href="#（1）-from-size" class="headerlink" title="（1） from/size"></a>（1） from/size</h3><p>mysql类型，默认分页深度10000，超过报错</p>
+<h3 id="（2）-search-after：实时请求下一页，不指定页数"><a href="#（2）-search-after：实时请求下一页，不指定页数" class="headerlink" title="（2） search after：实时请求下一页，不指定页数"></a>（2） search after：实时请求下一页，不指定页数</h3><p>利用上一次查询返回的游标，进行下一页查询<br>需要增加排序字段<br>开销小很多</p>
+<h3 id="（3）-scroll-api：查询大量文档，实时性不高"><a href="#（3）-scroll-api：查询大量文档，实时性不高" class="headerlink" title="（3） scroll api：查询大量文档，实时性不高"></a>（3） scroll api：查询大量文档，实时性不高</h3><p>第一次查询时，生成快照，之后的每次翻页，都是基于这个快照的结果，不会查询到新数据<br>第一次查询，返回scroll id<br>每个查询都可以设置一个过期时间</p>
+<h2 id="14-防止拖库"><a href="#14-防止拖库" class="headerlink" title="14. 防止拖库"></a>14. 防止拖库</h2><h3 id="（1）-CTSDB"><a href="#（1）-CTSDB" class="headerlink" title="（1） CTSDB"></a>（1） CTSDB</h3><ul>
+<li>用户名密码 + VPV</li>
+<li>其他人操作，需要授权</li>
+</ul>
+<h3 id="（2）接口层"><a href="#（2）接口层" class="headerlink" title="（2）接口层"></a>（2）接口层</h3><p>openapi</p>
+<ul>
+<li>限流</li>
+<li>使用from + size，限制10000</li>
+<li>鉴权，证书下发</li>
+</ul>
+<h3 id="（3）-逻辑层"><a href="#（3）-逻辑层" class="headerlink" title="（3） 逻辑层"></a>（3） 逻辑层</h3><ul>
+<li>加密字段</li>
+<li>密码加密 =》 字典攻击 =》 加盐</li>
+</ul>
+<h3 id="（4）-es"><a href="#（4）-es" class="headerlink" title="（4） es"></a>（4） es</h3><ul>
+<li>身份认证：登录</li>
+<li>传输加密：防抓包，启动TLS，TLS加密通信（证书）<ul>
+<li>集群内部加密，TLS协议 + 证书</li>
+<li>集群外部加密，https/ssl + 证书</li>
+</ul>
+</li>
+<li>用户鉴权：角色，基于角色的访问控制</li>
+<li>日志审计</li>
+</ul>
+<h2 id="15-其他"><a href="#15-其他" class="headerlink" title="15. 其他"></a>15. 其他</h2><p>add快，buld request慢 =》 可以增大并发，add操作不会被阻塞 =》 改成同步</p>
+]]></content>
       <categories>
         <category>答辩</category>
         <category>大数据</category>
@@ -1825,8 +2049,155 @@
   </entry>
   <entry>
     <title>kafka</title>
-    <url>/2021/11/11/kafka/</url>
-    <content><![CDATA[<p>为什么选择kafka<br>和RabbitMQ，RocketMQ，FMQ等等相比</p>
+    <url>/2021/11/13/kafka/</url>
+    <content><![CDATA[<h2 id="1-作用"><a href="#1-作用" class="headerlink" title="1. 作用"></a>1. 作用</h2><ul>
+<li>削峰填谷</li>
+<li>防止数据丢失</li>
+</ul>
+<h2 id="2-集群"><a href="#2-集群" class="headerlink" title="2. 集群"></a>2. 集群</h2><ul>
+<li>天然支持集群，一个节点也是集群</li>
+<li>注册到同一个zk上，就是同一个集群</li>
+<li>id区分节点</li>
+</ul>
+<h2 id="3-分片"><a href="#3-分片" class="headerlink" title="3. 分片"></a>3. 分片</h2><ul>
+<li>partition（文件类）下有多个segment片段（文件）</li>
+<li>每个segment对应一个.log文件和一个.index文件</li>
+</ul>
+<h3 id="（1）-分片的功能"><a href="#（1）-分片的功能" class="headerlink" title="（1） 分片的功能"></a>（1） 分片的功能</h3><ul>
+<li>负载均衡：均匀地分布在多个broker</li>
+<li>提高读写并发度和吞吐量：消费者</li>
+<li>系统伸缩性： 根据业务量配置集群</li>
+<li>提高集群故障处理能力：分片拆分，只影响一部分数据</li>
+</ul>
+<h3 id="（2）-分片策略"><a href="#（2）-分片策略" class="headerlink" title="（2） 分片策略"></a>（2） 分片策略</h3><ul>
+<li>消息发送分区分配：指定分区 + key（murmur hash） + 轮询</li>
+<li>消费者分区分配：consumer leader负责，也是rebalance过程，分区按照数字顺序排序，消费者按名称的字典序排序<ul>
+<li>RoundRobin:依次顺序分配</li>
+<li>Range:分区总数/消费者数</li>
+</ul>
+</li>
+<li>分区放在哪个节点：master负责，随机挑一个broker放分区0，依次放置其他分区；副本分片基于主分片，按顺序以此方式</li>
+</ul>
+<h3 id="3-分片缺点"><a href="#3-分片缺点" class="headerlink" title="(3) 分片缺点"></a>(3) 分片缺点</h3><ul>
+<li>分片太多，导致集群不可用</li>
+<li>副本数据同步，数据延迟</li>
+<li>需要大量内存，不适合资源紧张的环境</li>
+</ul>
+<h2 id="4-消费者"><a href="#4-消费者" class="headerlink" title="4. 消费者"></a>4. 消费者</h2><ul>
+<li>消费能力横向伸缩性</li>
+<li>容错性/故障容灾</li>
+<li>Rebalance，减少消费抖动（consumer停止消费）</li>
+<li>高性能，一个消费者 =》 多个消费者</li>
+</ul>
+<h2 id="5-副本"><a href="#5-副本" class="headerlink" title="5. 副本"></a>5. 副本</h2><h3 id="（1）-作用"><a href="#（1）-作用" class="headerlink" title="（1） 作用"></a>（1） 作用</h3><ul>
+<li>数据备份，数据恢复，数据高可靠和完整性</li>
+<li>防止单点故障，支持容错</li>
+<li>故障自动转移</li>
+</ul>
+<h3 id="（2）-数据一致性"><a href="#（2）-数据一致性" class="headerlink" title="（2） 数据一致性"></a>（2） 数据一致性</h3><ul>
+<li>对外一致性：领导者副本机制，follower不对外提供服务，follower被动、定期、异步拉取leader数据</li>
+<li>对内一致性：ISR副本集合<ul>
+<li>Follower落后时间，10s</li>
+<li>动态调整</li>
+<li>平衡数据丢失率和吞吐率</li>
+</ul>
+</li>
+<li>复制一致性：leader和follower都commit后，更新到HW，才能对外读取</li>
+</ul>
+<h3 id="（3）-容错性"><a href="#（3）-容错性" class="headerlink" title="（3） 容错性"></a>（3） 容错性</h3><p>broker异常或者退出，分片会把leader切换到ISR中对应的follower节点上，继续对外提供写入服务</p>
+<h3 id="（4）-数据恢复"><a href="#（4）-数据恢复" class="headerlink" title="（4） 数据恢复"></a>（4） 数据恢复</h3><p>follower从leader进行数据同步</p>
+<h3 id="（5）-全部宕机"><a href="#（5）-全部宕机" class="headerlink" title="（5） 全部宕机"></a>（5） 全部宕机</h3><ul>
+<li>等待ISR中的一个恢复，选他为leader：降低可用性</li>
+<li>选择第一个恢复的副本作为leader，无论是否在ISR：数据丢失</li>
+</ul>
+<h3 id="（6）-副本分配"><a href="#（6）-副本分配" class="headerlink" title="（6） 副本分配"></a>（6） 副本分配</h3><p>副本分片基于主分片的选择，按顺序防止</p>
+<h2 id="6-选举"><a href="#6-选举" class="headerlink" title="6. 选举"></a>6. 选举</h2><h3 id="（1）-controller"><a href="#（1）-controller" class="headerlink" title="（1） controller"></a>（1） controller</h3><ul>
+<li>zk中创建临时节点，第一个注册成功的，成为controller</li>
+<li>功能<ul>
+<li>主题管理</li>
+<li>分区重分配</li>
+<li>preferred leader选举</li>
+<li>集群成员管理</li>
+<li>集群元数据</li>
+</ul>
+</li>
+</ul>
+<h3 id="（2）-leader"><a href="#（2）-leader" class="headerlink" title="（2） leader"></a>（2） leader</h3><p>ISR集合，分区选择算法，ISR列表中的第一个</p>
+<h3 id="（3）-消费者选主"><a href="#（3）-消费者选主" class="headerlink" title="（3） 消费者选主"></a>（3） 消费者选主</h3><ul>
+<li>第一个加入消费者组的</li>
+<li>重新分配：随机</li>
+<li>消费者协调器负责选主，主负责分配分片</li>
+</ul>
+<h2 id="7-故障处理"><a href="#7-故障处理" class="headerlink" title="7. 故障处理"></a>7. 故障处理</h2><h3 id="（1）-controller故障"><a href="#（1）-controller故障" class="headerlink" title="（1） controller故障"></a>（1） controller故障</h3><p>选举新的controller，zk注册，第一个注册成功的是controller</p>
+<h3 id="（2）-leader故障"><a href="#（2）-leader故障" class="headerlink" title="（2） leader故障"></a>（2） leader故障</h3><ul>
+<li>controller从ISR列表中选出新的leader</li>
+<li>ISR列表中的第一个</li>
+<li>数据一致性：其余follower，log文件中高于HW的截掉，从新的leader同步数据</li>
+<li>副本数据：controller选一个节点，分配follower</li>
+</ul>
+<h3 id="（3）-follower故障"><a href="#（3）-follower故障" class="headerlink" title="（3） follower故障"></a>（3） follower故障</h3><ul>
+<li>重新从leader同步数据，追上leader（LEO &gt; HW）</li>
+<li>重新加入ISR中</li>
+</ul>
+<h3 id="（4）-写入，主挂了"><a href="#（4）-写入，主挂了" class="headerlink" title="（4） 写入，主挂了"></a>（4） 写入，主挂了</h3><p>重试</p>
+<h3 id="（5）-写入，follower挂了"><a href="#（5）-写入，follower挂了" class="headerlink" title="（5） 写入，follower挂了"></a>（5） 写入，follower挂了</h3><p>从ISR中剔除，等待恢复</p>
+<h3 id="（6）-全部挂了"><a href="#（6）-全部挂了" class="headerlink" title="（6） 全部挂了"></a>（6） 全部挂了</h3><ul>
+<li>非ISR列表中的节点选为leader：数据丢失，对外可用</li>
+<li>ISR列表中第一个恢复的选为leader：数据不丢失，对外不可用</li>
+</ul>
+<h3 id="（7）-异常切换耗时"><a href="#（7）-异常切换耗时" class="headerlink" title="（7） 异常切换耗时"></a>（7） 异常切换耗时</h3><p>leader挂了，zk监听，6s内发现</p>
+<h2 id="8-水平扩展"><a href="#8-水平扩展" class="headerlink" title="8. 水平扩展"></a>8. 水平扩展</h2><ul>
+<li>broker启动/停止：partition再分配</li>
+<li>partition增加/减少：提高/降低并发处理能力</li>
+</ul>
+<h2 id="9-kafka-api"><a href="#9-kafka-api" class="headerlink" title="9. kafka api"></a>9. kafka api</h2><h3 id="（1）-consumer-api升级"><a href="#（1）-consumer-api升级" class="headerlink" title="（1） consumer api升级"></a>（1） consumer api升级</h3><p>| | 旧API | 新API |<br>| offset | zk管理 | kafka中的topic管理 |<br>| 机器连接 | zk | kafka broker |<br>| consumer group | 多线程，一个线程一个分区 | 单线程，非线程安全，轮询的方式；支持单线程和多线程 |<br>| 心跳 | 无 | 双线程，用户主线程 + 心跳线程；定期发送心跳请求，确保存活性 | </p>
+<ul>
+<li>好处<ul>
+<li>旧的API：offset依赖zk，数据量大且消费频繁，zk是瓶颈</li>
+<li>新的API：分片分配，依赖broker coordinate和consumer leader，减少zk依赖</li>
+<li>新的API：增加心跳，减少rebalance</li>
+<li>新的API：可以批量拉取数据</li>
+</ul>
+</li>
+</ul>
+<h3 id="（2）-offset提交"><a href="#（2）-offset提交" class="headerlink" title="（2） offset提交"></a>（2） offset提交</h3><p>kafka中的一个topic，保存每个分区的偏移量。</p>
+<p>更新方式</p>
+<ul>
+<li>自动：at most once，频率5s</li>
+<li>手动，at least once<ul>
+<li>同步提交：失败重试，影响吞吐量</li>
+<li>异步提交：不重试，可回调，注意顺序</li>
+</ul>
+</li>
+</ul>
+<h3 id="（3）-新版本使用方案"><a href="#（3）-新版本使用方案" class="headerlink" title="（3） 新版本使用方案"></a>（3） 新版本使用方案</h3><ul>
+<li>多线程 + 多kafka consumer实例<ul>
+<li>优点：方便实现；速度快，无线程切换；维护分区消费顺序</li>
+<li>缺点：占用更多系统资源；受限于分区数，扩展性差；处理超时</li>
+</ul>
+</li>
+<li>单线程 + 单线程kafka consumer + worker线程池<ul>
+<li>优点：可独立扩展线程数；伸缩性好</li>
+<li>缺点： 实现难度高；难以维护分区消息顺序；处理拉长，不易于位移提交管理</li>
+</ul>
+</li>
+</ul>
+<h2 id="10-数据丢失"><a href="#10-数据丢失" class="headerlink" title="10. 数据丢失"></a>10. 数据丢失</h2><ul>
+<li>leader存储，follower未同步，leader故障，切换，数据丢失</li>
+<li>leader存储，follower同步，未写入磁盘，两个都挂掉，数据丢失</li>
+</ul>
+<h2 id="11-为什么kafka很快"><a href="#11-为什么kafka很快" class="headerlink" title="11. 为什么kafka很快"></a>11. 为什么kafka很快</h2><ul>
+<li>顺序读写：追加到本地磁盘文件末尾</li>
+<li>Page Cache：操作系统的内存而不是JVM空间内存<ul>
+<li>避免Object消耗</li>
+<li>避免GC问题</li>
+</ul>
+</li>
+<li>零拷贝：sendfile方法直接将数据从内核空间的度缓冲区拷贝到内核空间的socket缓冲区，不经过用户空间缓存区</li>
+<li>分区分段 + 索引：segment文件有.index</li>
+<li>批量写入 + 批量压缩，减少网络IO</li>
+</ul>
+<h2 id="12-为什么选择kafka"><a href="#12-为什么选择kafka" class="headerlink" title="12. 为什么选择kafka"></a>12. 为什么选择kafka</h2><p>和RabbitMQ，RocketMQ，FMQ等等相比</p>
 <h3 id="（1）-kafka吞吐高"><a href="#（1）-kafka吞吐高" class="headerlink" title="（1） kafka吞吐高"></a>（1） kafka吞吐高</h3><p>比RabbitMQ高出1-2个数量级</p>
 <ul>
 <li>kafka QPS：百万级</li>
@@ -1837,7 +2208,18 @@
 <h3 id="（3）-服务可用性"><a href="#（3）-服务可用性" class="headerlink" title="（3） 服务可用性"></a>（3） 服务可用性</h3><p>均有</p>
 <h3 id="（4）-功能"><a href="#（4）-功能" class="headerlink" title="（4） 功能"></a>（4） 功能</h3><p>kafka：适合海量数据收集，适合高吞吐<br>RabbitMQ：支持更多消息队列功能，适合数据一致性，稳定性，高可靠<br>RocketMQ：阿里，交易场景</p>
 <h3 id="（5）-FMQ（2018）"><a href="#（5）-FMQ（2018）" class="headerlink" title="（5） FMQ（2018）"></a>（5） FMQ（2018）</h3><p>适合消息异步订阅，消息队列，一致性，可靠性<br>而不是日志海量存储，高吞吐</p>
-<p>zk性能<br>tps：1W+ / s，弱</p>
+<h2 id="13-zk"><a href="#13-zk" class="headerlink" title="13. zk"></a>13. zk</h2><h3 id="（1）-zk性能"><a href="#（1）-zk性能" class="headerlink" title="（1） zk性能"></a>（1） zk性能</h3><p>tps：1W+ / s，弱</p>
+<h3 id="（2）-zk存储信息"><a href="#（2）-zk存储信息" class="headerlink" title="（2） zk存储信息"></a>（2） zk存储信息</h3><p>集群元信息</p>
+<ul>
+<li>controller数据</li>
+<li>brokers数据<ul>
+<li>每个broker有哪些topic + partition</li>
+<li>leader，ISR等的state状态</li>
+<li>broker的ids，临时节点的ids</li>
+</ul>
+</li>
+<li>消费者不再向zk注册，由消费者协调器统一管理</li>
+</ul>
 ]]></content>
       <categories>
         <category>答辩</category>
