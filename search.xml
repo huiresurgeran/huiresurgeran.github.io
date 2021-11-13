@@ -2150,7 +2150,35 @@
 <li>broker启动/停止：partition再分配</li>
 <li>partition增加/减少：提高/降低并发处理能力</li>
 </ul>
-<h2 id="9-kafka-api"><a href="#9-kafka-api" class="headerlink" title="9. kafka api"></a>9. kafka api</h2><h3 id="（1）-consumer-api升级"><a href="#（1）-consumer-api升级" class="headerlink" title="（1） consumer api升级"></a>（1） consumer api升级</h3><p>| | 旧API | 新API |<br>| offset | zk管理 | kafka中的topic管理 |<br>| 机器连接 | zk | kafka broker |<br>| consumer group | 多线程，一个线程一个分区 | 单线程，非线程安全，轮询的方式；支持单线程和多线程 |<br>| 心跳 | 无 | 双线程，用户主线程 + 心跳线程；定期发送心跳请求，确保存活性 | </p>
+<h2 id="9-kafka-api"><a href="#9-kafka-api" class="headerlink" title="9. kafka api"></a>9. kafka api</h2><h3 id="（1）-consumer-api升级"><a href="#（1）-consumer-api升级" class="headerlink" title="（1） consumer api升级"></a>（1） consumer api升级</h3><table>
+<thead>
+<tr>
+<th></th>
+<th>旧API</th>
+<th>新API</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>offset</td>
+<td>zk管理</td>
+<td>kafka中的topic管理</td>
+</tr>
+<tr>
+<td>机器连接</td>
+<td>zk</td>
+<td>kafka broker</td>
+</tr>
+<tr>
+<td>consumer group</td>
+<td>多线程，一个线程一个分区</td>
+<td>单线程，非线程安全，轮询的方式；支持单线程和多线程</td>
+</tr>
+<tr>
+<td>心跳</td>
+<td>无</td>
+<td>双线程，用户主线程 + 心跳线程；定期发送心跳请求，确保存活性</td>
+</tr>
+</tbody></table>
 <ul>
 <li>好处<ul>
 <li>旧的API：offset依赖zk，数据量大且消费频繁，zk是瓶颈</li>
