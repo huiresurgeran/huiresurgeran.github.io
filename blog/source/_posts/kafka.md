@@ -128,6 +128,7 @@ leader挂了，zk监听，6s内发现
 ### （1） consumer api升级
 
 | | 旧API | 新API |
+| --- | --- | --- |
 | offset | zk管理 | kafka中的topic管理 |
 | 机器连接 | zk | kafka broker |
 | consumer group | 多线程，一个线程一个分区 | 单线程，非线程安全，轮询的方式；支持单线程和多线程 |
